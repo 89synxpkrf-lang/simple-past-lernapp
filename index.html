@@ -1,0 +1,1638 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simple Past – Lern-App | Klasse 5a</title>
+<style>
+  :root {
+    --navy: #1A237E;
+    --navy-light: #283593;
+    --navy-dark: #131a5c;
+    --red: #C62828;
+    --red-light: #EF5350;
+    --gold: #FFD600;
+    --gold-soft: #FFE970;
+    --cream: #FAFAF5;
+    --paper: #FFFFFF;
+    --ink: #1A2E35;
+    --gray: #78909C;
+    --gray-light: #ECEFF1;
+    --green: #2E7D32;
+    --green-bg: #E8F5E9;
+    --red-bg: #FFEBEE;
+    --shadow: 0 8px 24px rgba(26,35,126,0.12);
+    --shadow-lg: 0 16px 48px rgba(26,35,126,0.20);
+    --radius: 18px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body { height: 100%; }
+
+  body {
+    font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
+    background:
+      radial-gradient(circle at 12% 18%, rgba(255,214,0,0.10), transparent 40%),
+      radial-gradient(circle at 88% 82%, rgba(198,40,40,0.08), transparent 40%),
+      linear-gradient(160deg, #f4f5fb 0%, #eef0f8 100%);
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .app {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 20px 16px 60px;
+    min-height: 100vh;
+  }
+
+  /* ─── TOP BAR ─────────────────────────────────────────── */
+  .topbar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--navy);
+    border-radius: var(--radius);
+    padding: 14px 20px;
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+  }
+  .topbar::after {
+    content: "";
+    position: absolute; right: -30px; top: -20px;
+    width: 140px; height: 140px;
+    background: var(--red);
+    opacity: 0.20;
+    transform: rotate(25deg);
+    border-radius: 20px;
+  }
+  .flag {
+    width: 46px; height: 46px; flex: none;
+    border-radius: 50%;
+    background:
+      conic-gradient(from 0deg, var(--navy) 0 25%, var(--red) 0 50%, var(--navy) 0 75%, var(--red) 0 100%);
+    border: 3px solid var(--gold);
+    position: relative; z-index: 1;
+    display: grid; place-items: center;
+    font-size: 22px;
+  }
+  .topbar h1 {
+    color: #fff; font-size: 1.25rem; z-index: 1;
+    letter-spacing: 0.5px;
+  }
+  .topbar .sub {
+    color: var(--gold); font-size: 0.78rem; font-weight: bold; z-index: 1;
+  }
+  .topbar .spacer { flex: 1; }
+  .reset-btn {
+    z-index: 1;
+    background: rgba(255,255,255,0.15);
+    color: #fff; border: 1.5px solid rgba(255,255,255,0.4);
+    border-radius: 10px; padding: 8px 14px;
+    font-family: inherit; font-size: 0.8rem; font-weight: bold;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .reset-btn:hover { background: rgba(255,255,255,0.28); }
+
+  /* ─── PROGRESS ────────────────────────────────────────── */
+  .progress-wrap {
+    display: flex; align-items: center; gap: 12px;
+    margin: 18px 4px 22px;
+  }
+  .progress-track {
+    flex: 1; height: 14px; background: var(--gray-light);
+    border-radius: 8px; overflow: hidden;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.12);
+  }
+  .progress-fill {
+    height: 100%; width: 0%;
+    background: linear-gradient(90deg, var(--gold), var(--gold-soft));
+    border-radius: 8px; transition: width 0.5s cubic-bezier(.2,.8,.2,1);
+  }
+  .progress-label { font-size: 0.82rem; font-weight: bold; color: var(--navy); white-space: nowrap; }
+  .score-chip {
+    background: var(--gold); color: var(--navy);
+    font-weight: bold; font-size: 0.85rem;
+    padding: 6px 14px; border-radius: 20px;
+    display: flex; align-items: center; gap: 6px;
+    box-shadow: var(--shadow);
+  }
+  .streak-chip {
+    background: var(--red); color: #fff;
+    font-weight: bold; font-size: 0.85rem;
+    padding: 6px 14px; border-radius: 20px;
+    display: none; align-items: center; gap: 6px;
+    box-shadow: var(--shadow);
+  }
+  .streak-chip.active { display: flex; animation: pop 0.4s; }
+
+  /* ─── CARDS ───────────────────────────────────────────── */
+  .card {
+    background: var(--paper);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 30px 28px;
+    animation: slideUp 0.4s cubic-bezier(.2,.8,.2,1);
+  }
+
+  /* ─── START SCREEN ────────────────────────────────────── */
+  .start { text-align: center; padding: 44px 28px; }
+  .start .big-flag {
+    width: 90px; height: 90px; margin: 0 auto 20px;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, var(--navy) 0 25%, var(--red) 0 50%, var(--navy) 0 75%, var(--red) 0 100%);
+    border: 5px solid var(--gold);
+    display: grid; place-items: center; font-size: 42px;
+    box-shadow: var(--shadow-lg);
+  }
+  .start h2 { font-size: 2.1rem; color: var(--navy); margin-bottom: 8px; }
+  .start .tagline { font-size: 1.05rem; color: var(--red); font-weight: bold; margin-bottom: 24px; }
+  .start p { color: var(--gray); max-width: 520px; margin: 0 auto 14px; line-height: 1.6; }
+
+  .level-pills { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 26px 0 32px; }
+  .level-pill {
+    background: var(--gray-light); color: var(--navy);
+    padding: 10px 16px; border-radius: 12px; font-size: 0.85rem; font-weight: bold;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .level-pill .num {
+    background: var(--navy); color: #fff; width: 24px; height: 24px;
+    border-radius: 50%; display: grid; place-items: center; font-size: 0.8rem;
+  }
+
+  /* ─── BUTTONS ─────────────────────────────────────────── */
+  .btn {
+    font-family: inherit; font-weight: bold; cursor: pointer;
+    border: none; border-radius: 14px; padding: 16px 34px;
+    font-size: 1.05rem; transition: transform 0.15s, box-shadow 0.2s, background 0.2s;
+    box-shadow: var(--shadow);
+  }
+  .btn:active { transform: translateY(2px); }
+  .btn-primary { background: var(--gold); color: var(--navy); }
+  .btn-primary:hover { background: var(--gold-soft); box-shadow: var(--shadow-lg); }
+  .btn-navy { background: var(--navy); color: #fff; }
+  .btn-navy:hover { background: var(--navy-light); }
+  .btn-ghost { background: transparent; color: var(--navy); box-shadow: none; border: 2px solid var(--navy); }
+  .btn-ghost:hover { background: var(--navy); color: #fff; }
+  .btn-sm { padding: 10px 18px; font-size: 0.85rem; border-radius: 10px; }
+
+  /* ─── LEVEL INTRO (Merkkasten) ────────────────────────── */
+  .level-intro .badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--red); color: #fff; font-weight: bold;
+    padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; margin-bottom: 14px;
+  }
+  .level-intro h2 { color: var(--navy); font-size: 1.7rem; margin-bottom: 18px; }
+  .rule-box {
+    background: linear-gradient(135deg, #fffdf2, #fff8d6);
+    border: 2.5px solid var(--gold);
+    border-left: 10px solid var(--gold);
+    border-radius: 14px; padding: 22px 24px; margin: 18px 0;
+  }
+  .rule-box .rule-main {
+    font-size: 1.3rem; color: var(--navy); font-weight: bold; margin-bottom: 14px; line-height: 1.4;
+  }
+  .rule-box .formula {
+    display: inline-block; background: var(--navy); color: #fff;
+    padding: 12px 22px; border-radius: 12px; font-size: 1.35rem;
+    margin: 8px 0; letter-spacing: 1px;
+  }
+  .rule-box .formula .hl { color: var(--gold); }
+  .rule-box .examples { margin-top: 14px; display: flex; flex-direction: column; gap: 7px; }
+  .rule-box .ex {
+    font-size: 1.08rem; color: var(--ink);
+    background: rgba(255,255,255,0.7); padding: 8px 14px; border-radius: 8px;
+  }
+  .rule-box .ex b { color: var(--red); }
+  .rule-box .ex .ed { color: var(--red); font-weight: bold; text-decoration: underline; }
+
+  .rule-table { width: 100%; border-collapse: collapse; margin-top: 12px; background: rgba(255,255,255,0.7); border-radius: 8px; overflow: hidden; }
+  .rule-table td { padding: 9px 14px; font-size: 1.05rem; border-bottom: 1px solid #eee; }
+  .rule-table td:first-child { font-family: 'Courier New', monospace; color: var(--gray); }
+  .rule-table td b { color: var(--navy); }
+
+  .warn-box {
+    background: var(--gold); border-radius: 12px; padding: 14px 18px;
+    margin-top: 14px; font-size: 1.0rem; color: var(--navy); font-weight: bold;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .warn-box .x { color: var(--red); }
+  .warn-box .ok { color: var(--green); }
+
+  .level-intro .actions { display: flex; gap: 12px; justify-content: center; margin-top: 26px; flex-wrap: wrap; }
+
+  /* ─── QUESTION SCREEN ─────────────────────────────────── */
+  .q-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .q-level-tag {
+    font-size: 0.78rem; font-weight: bold; color: var(--red);
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+  .q-rule-link {
+    font-size: 0.78rem; color: var(--navy); cursor: pointer;
+    text-decoration: underline; background: none; border: none; font-family: inherit;
+  }
+  .q-type { font-size: 0.85rem; color: var(--gray); margin-bottom: 16px; }
+  .q-prompt { font-size: 1.4rem; color: var(--navy); font-weight: bold; line-height: 1.5; margin-bottom: 24px; }
+  .q-prompt .blank { color: var(--red); border-bottom: 3px solid var(--red); padding: 0 22px; }
+  .q-de { font-size: 0.95rem; color: var(--gray); font-style: italic; font-weight: normal; display: block; margin-top: 6px; }
+
+  /* Multiple choice options */
+  .options { display: grid; gap: 12px; }
+  .option {
+    background: var(--cream); border: 2.5px solid var(--gray-light);
+    border-radius: 14px; padding: 16px 20px; font-size: 1.15rem; font-weight: bold;
+    color: var(--ink); cursor: pointer; text-align: left;
+    font-family: inherit; transition: all 0.15s;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .option:hover:not(:disabled) { border-color: var(--navy); transform: translateX(4px); }
+  .option .letter {
+    width: 30px; height: 30px; flex: none; border-radius: 8px;
+    background: var(--navy); color: #fff; display: grid; place-items: center; font-size: 0.95rem;
+  }
+  .option.correct { border-color: var(--green); background: var(--green-bg); }
+  .option.correct .letter { background: var(--green); }
+  .option.wrong { border-color: var(--red); background: var(--red-bg); }
+  .option.wrong .letter { background: var(--red); }
+  .option:disabled { cursor: default; }
+
+  /* Text input */
+  .input-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: stretch; }
+  .text-input {
+    flex: 1; min-width: 200px;
+    font-family: inherit; font-size: 1.3rem; font-weight: bold;
+    padding: 16px 20px; border: 2.5px solid var(--gray-light);
+    border-radius: 14px; color: var(--navy); background: var(--cream);
+    transition: border 0.2s;
+  }
+  .text-input:focus { outline: none; border-color: var(--navy); }
+  .text-input.correct { border-color: var(--green); background: var(--green-bg); }
+  .text-input.wrong { border-color: var(--red); background: var(--red-bg); }
+
+  /* Matching / drag */
+  .match-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; }
+  .match-col { display: flex; flex-direction: column; gap: 10px; }
+  .match-col h4 { font-size: 0.85rem; color: var(--gray); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .match-item {
+    background: var(--cream); border: 2.5px solid var(--gray-light);
+    border-radius: 12px; padding: 13px 16px; font-size: 1.1rem; font-weight: bold;
+    color: var(--ink); cursor: pointer; font-family: inherit; transition: all 0.15s; text-align: center;
+  }
+  .match-item.selected { border-color: var(--gold); background: #fffbe6; transform: scale(1.03); }
+  .match-item.matched { border-color: var(--green); background: var(--green-bg); cursor: default; opacity: 0.6; }
+  .match-item.dropzone { border-style: dashed; }
+
+  /* ─── FEEDBACK ────────────────────────────────────────── */
+  .feedback {
+    margin-top: 22px; border-radius: 14px; padding: 18px 22px;
+    animation: slideUp 0.3s; display: none;
+  }
+  .feedback.show { display: block; }
+  .feedback.good { background: var(--green-bg); border-left: 8px solid var(--green); }
+  .feedback.bad { background: var(--red-bg); border-left: 8px solid var(--red); }
+  .feedback .fb-title { font-size: 1.15rem; font-weight: bold; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+  .feedback.good .fb-title { color: var(--green); }
+  .feedback.bad .fb-title { color: var(--red); }
+  .feedback .fb-body { font-size: 1.02rem; line-height: 1.55; color: var(--ink); }
+  .feedback .fb-body b { color: var(--navy); }
+  .feedback .fb-correct {
+    margin-top: 10px; font-size: 1.05rem; background: rgba(255,255,255,0.7);
+    padding: 10px 14px; border-radius: 8px;
+  }
+  .feedback .fb-correct .sol { color: var(--green); font-weight: bold; }
+
+  .q-actions { display: flex; justify-content: flex-end; margin-top: 20px; gap: 12px; }
+  .check-btn { display: inline-block; }
+
+  /* ─── LEVEL COMPLETE ──────────────────────────────────── */
+  .complete { text-align: center; padding: 36px 28px; }
+  .complete .star-burst { font-size: 64px; margin-bottom: 14px; animation: pop 0.6s; }
+  .complete h2 { color: var(--navy); font-size: 1.9rem; margin-bottom: 10px; }
+  .complete .level-score { font-size: 1.2rem; color: var(--red); font-weight: bold; margin-bottom: 20px; }
+  .mini-rule {
+    background: var(--navy); color: #fff; border-radius: 14px; padding: 18px 22px;
+    margin: 20px auto; max-width: 560px; text-align: left;
+  }
+  .mini-rule h4 { color: var(--gold); margin-bottom: 8px; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1px; }
+  .mini-rule p { color: #fff; line-height: 1.5; }
+  .mini-rule .hl { color: var(--gold); font-weight: bold; }
+
+  /* ─── FINAL SCREEN ────────────────────────────────────── */
+  .final { text-align: center; padding: 40px 28px; }
+  .final .trophy { font-size: 80px; margin-bottom: 16px; animation: pop 0.7s; }
+  .final h2 { color: var(--navy); font-size: 2.2rem; margin-bottom: 12px; }
+  .final .final-score {
+    display: inline-block; background: var(--gold); color: var(--navy);
+    font-size: 1.5rem; font-weight: bold; padding: 14px 32px; border-radius: 16px;
+    margin: 12px 0 8px; box-shadow: var(--shadow);
+  }
+  .final .stars { font-size: 36px; margin: 10px 0 20px; letter-spacing: 6px; }
+  .final .msg { color: var(--gray); font-size: 1.1rem; max-width: 520px; margin: 0 auto 26px; line-height: 1.6; }
+  .final .breakdown { max-width: 520px; margin: 0 auto 26px; text-align: left; }
+  .final .bd-row {
+    display: flex; justify-content: space-between; align-items: center;
+    background: var(--cream); border-radius: 10px; padding: 12px 18px; margin-bottom: 8px;
+    font-weight: bold; color: var(--navy);
+  }
+  .final .bd-row .pts { color: var(--red); }
+
+  /* ─── ANIMATIONS ──────────────────────────────────────── */
+  @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes pop { 0% { transform: scale(0.6); } 60% { transform: scale(1.15); } 100% { transform: scale(1); } }
+  @keyframes shake { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-8px); } 40% { transform: translateX(8px); } 60% { transform: translateX(-5px); } 80% { transform: translateX(5px); } }
+  @keyframes flash-green { 0% { background: var(--green-bg); } 100% { background: var(--paper); } }
+  .shake { animation: shake 0.4s; }
+
+  /* ─── RETYPE (Lösung abschreiben) ─────────────────────── */
+  .retype-wrap { width: 100%; animation: slideUp 0.3s; }
+  .retype-label { font-size: 0.95rem; font-weight: bold; color: var(--navy); margin-bottom: 10px; }
+  .retype-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .retype-input { flex: 1; min-width: 200px; font-size: 1.15rem; }
+  .retype-hint { margin-top: 8px; font-size: 0.92rem; min-height: 18px; }
+
+  /* match wrong flash */
+  .match-item.wrong { border-color: var(--red); background: var(--red-bg); animation: shake 0.4s; }
+
+  /* ─── TIPS BOX (Endfeedback) ──────────────────────────── */
+  .tips-box {
+    background: var(--cream); border: 2px solid var(--gray-light);
+    border-radius: 14px; padding: 20px 22px; margin: 22px auto; max-width: 580px; text-align: left;
+  }
+  .tips-box h4 { color: var(--navy); font-size: 1.05rem; margin-bottom: 12px; }
+  .tips-intro { color: var(--gray); font-size: 0.95rem; margin-bottom: 12px; line-height: 1.5; }
+  .tip-row { padding: 11px 15px; border-radius: 10px; margin-bottom: 9px; font-size: 0.98rem; line-height: 1.45; color: var(--ink); }
+  .tip-row b { color: var(--navy); }
+  .tip-hard { background: var(--red-bg); border-left: 6px solid var(--red); }
+  .tip-soft { background: #FFF8E1; border-left: 6px solid var(--gold); }
+  .tip-perfect { background: var(--green-bg); border-left: 6px solid var(--green); font-weight: bold; }
+
+  /* ─── DISABLED BUTTON ─────────────────────────────────── */
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
+  .btn:disabled:hover { background: var(--gold); }
+
+  /* ─── LEHRER-LINK (Topbar oben rechts) ────────────────── */
+  .teacher-link {
+    z-index: 1;
+    background: var(--gold); color: var(--navy);
+    border: none; border-radius: 10px; padding: 8px 14px;
+    font-family: inherit; font-size: 0.8rem; font-weight: bold;
+    cursor: pointer; transition: all 0.2s; margin-right: 8px;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .teacher-link:hover { background: var(--gold-soft); }
+
+  /* ─── SCHÜLER-ANMELDUNG ───────────────────────────────── */
+  .login { text-align: center; padding: 40px 28px; }
+  .login h2 { font-size: 1.8rem; color: var(--navy); margin-bottom: 6px; }
+  .login .login-q {
+    font-size: 1.15rem; color: var(--navy); font-weight: bold;
+    margin: 24px 0 14px;
+  }
+  .class-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
+    max-width: 420px; margin: 0 auto;
+  }
+  .class-btn {
+    font-family: inherit; font-weight: bold; cursor: pointer;
+    background: var(--cream); border: 3px solid var(--gray-light);
+    border-radius: 16px; padding: 24px 0; font-size: 1.6rem; color: var(--navy);
+    transition: all 0.15s; box-shadow: var(--shadow);
+  }
+  .class-btn:hover { border-color: var(--navy); transform: translateY(-2px); }
+  .class-btn.selected {
+    border-color: var(--gold); background: #fffbe6; color: var(--red);
+    transform: scale(1.04); box-shadow: var(--shadow-lg);
+  }
+  .name-input { max-width: 420px; margin: 0 auto; text-align: center; width: 100%; }
+  .privacy-hint {
+    background: var(--gray-light); border-radius: 12px;
+    padding: 12px 16px; margin: 18px auto 24px; max-width: 460px;
+    font-size: 0.88rem; color: var(--gray); line-height: 1.5; text-align: left;
+  }
+  .privacy-hint b { color: var(--navy); }
+
+  /* ─── LEHRER-LOGIN ────────────────────────────────────── */
+  .teacher-login { max-width: 480px; margin: 0 auto; }
+  .teacher-login .badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--navy); color: var(--gold); font-weight: bold;
+    padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; margin-bottom: 14px;
+  }
+  .teacher-login h2 { color: var(--navy); font-size: 1.6rem; margin-bottom: 8px; }
+  .teacher-login p { color: var(--gray); margin-bottom: 18px; line-height: 1.5; }
+  .pw-error { color: var(--red); font-weight: bold; font-size: 0.95rem; margin-top: 12px; min-height: 20px; }
+
+  /* ─── SPEICHER-STATUS (Endscreen) ─────────────────────── */
+  .save-status {
+    margin: 0 auto 22px; max-width: 520px; padding: 12px 18px;
+    border-radius: 12px; font-size: 0.98rem; font-weight: bold; line-height: 1.5;
+    background: var(--gray-light); color: var(--gray);
+  }
+  .save-status.ok { background: var(--green-bg); color: var(--green); }
+  .save-status.warn { background: var(--gold-soft); color: var(--navy); }
+
+  /* ─── LEHRER-DASHBOARD ────────────────────────────────── */
+  .dash-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 18px; }
+  .dash-head h2 { color: var(--navy); font-size: 1.5rem; }
+  .dash-filters { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
+  .filter-btn {
+    font-family: inherit; font-weight: bold; cursor: pointer;
+    background: var(--cream); border: 2.5px solid var(--gray-light);
+    border-radius: 12px; padding: 10px 20px; font-size: 1rem; color: var(--navy);
+    transition: all 0.15s;
+  }
+  .filter-btn:hover { border-color: var(--navy); }
+  .filter-btn.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+  .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+  .stat-card {
+    background: linear-gradient(135deg, #fffdf2, #fff8d6);
+    border: 2px solid var(--gold); border-radius: 14px; padding: 16px; text-align: center;
+  }
+  .stat-card .stat-num { font-size: 1.7rem; font-weight: bold; color: var(--navy); }
+  .stat-card .stat-label { font-size: 0.82rem; color: var(--gray); margin-top: 4px; line-height: 1.3; }
+  .stat-card .stat-num.small { font-size: 1.1rem; }
+  .sort-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-size: 0.9rem; color: var(--gray); flex-wrap: wrap; }
+  .sort-btn {
+    font-family: inherit; cursor: pointer; background: var(--gray-light);
+    border: none; border-radius: 8px; padding: 7px 14px; font-size: 0.85rem; font-weight: bold; color: var(--navy);
+  }
+  .sort-btn.active { background: var(--gold); }
+  .dash-table-wrap { overflow-x: auto; }
+  .dash-table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+  .dash-table th {
+    background: var(--navy); color: #fff; padding: 11px 12px; text-align: left;
+    font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;
+  }
+  .dash-table th:first-child { border-radius: 10px 0 0 0; }
+  .dash-table th:last-child { border-radius: 0 10px 0 0; }
+  .dash-table td { padding: 10px 12px; border-bottom: 1px solid var(--gray-light); color: var(--ink); }
+  .dash-table tr:nth-child(even) td { background: var(--cream); }
+  .dash-table .td-name { font-weight: bold; color: var(--navy); }
+  .dash-table .td-pts { font-weight: bold; color: var(--red); }
+  .dash-mini { font-size: 0.78rem; color: var(--gray); white-space: nowrap; }
+  .dash-mini b { color: var(--red); }
+  .dash-empty { text-align: center; color: var(--gray); padding: 30px; }
+  .dash-loading { text-align: center; color: var(--gray); padding: 30px; }
+
+  /* ─── RESPONSIVE ──────────────────────────────────────── */
+  @media (max-width: 600px) {
+    .q-prompt { font-size: 1.15rem; }
+    .match-wrap { gap: 12px; }
+    .start h2 { font-size: 1.6rem; }
+    .topbar h1 { font-size: 1.0rem; }
+    .btn { padding: 14px 24px; font-size: 0.95rem; }
+    .rule-box .formula { font-size: 1.05rem; }
+    .class-btn { font-size: 1.3rem; padding: 20px 0; }
+    .stat-grid { grid-template-columns: 1fr; }
+    .login h2 { font-size: 1.4rem; }
+    .teacher-link { padding: 7px 10px; font-size: 0.72rem; }
+    .reset-btn { padding: 7px 10px; font-size: 0.72rem; }
+  }
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+//  DATEN: LEVELS, REGELN, AUFGABEN
+// ═══════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
+//  LEVEL-DATEN mit Regeln (Merkkästen) und Aufgaben
+// ═══════════════════════════════════════════════════════════════
+const LEVELS = [
+  {
+    id: 1,
+    title: "Regelmäßige Verben",
+    badge: "Level 1",
+    intro: {
+      main: "Um über die Vergangenheit zu sprechen, hängst du <b>-ed</b> an das Verb.",
+      formula: 'verb + <span class="hl">-ed</span>',
+      examples: [
+        'play → play<span class="ed">ed</span>',
+        'watch → watch<span class="ed">ed</span>',
+        'visit → visit<span class="ed">ed</span>',
+      ],
+      table: null,
+      warn: null,
+    },
+    questions: [
+      { type: "mc", prompt: "Last month, we ___ Nettersheim on our class trip.", de: "Wähle die richtige Form.", options: ["visited", "visit", "visitet", "visitd"], answer: "visited", pin: true,
+        why: "Bei regelmäßigen Verben hängst du <b>-ed</b> an. Aus „visit“ wird „visited“. So redest du über unsere Klassenfahrt in der Vergangenheit!" },
+      { type: "mc", prompt: "Last weekend, we ___ football.", de: "Wähle die richtige Form.", options: ["play", "played", "plaied", "playd"], answer: "played",
+        why: "Bei regelmäßigen Verben hängst du einfach <b>-ed</b> an. Aus „play“ wird also „played“." },
+      { type: "mc", prompt: "Yesterday, I ___ a film.", de: "Wähle die richtige Form.", options: ["watched", "watch", "watchd", "wadched"], answer: "watched",
+        why: "„watch“ + <b>-ed</b> = „watched“. Ganz einfach!" },
+      { type: "input", prompt: "The girls ___ and talked. (laugh)", de: "Setze das Verb ins Simple Past.", answer: ["laughed"],
+        why: "„laugh“ + <b>-ed</b> = „laughed“." },
+      { type: "mc", prompt: "We ___ around the rooms.", de: "Wähle die richtige Form.", options: ["looked", "lookd", "look", "loked"], answer: "looked",
+        why: "„look“ + <b>-ed</b> = „looked“." },
+      { type: "input", prompt: "I ___ the class trip. (enjoy)", de: "Setze das Verb ins Simple Past.", answer: ["enjoyed"],
+        why: "„enjoy“ + <b>-ed</b> = „enjoyed“." },
+      { type: "mc", prompt: "They ___ to their friends.", de: "Wähle die richtige Form.", options: ["talked", "talk", "talkd", "tolked"], answer: "talked",
+        why: "„talk“ + <b>-ed</b> = „talked“." },
+      { type: "input", prompt: "We ___ the bags. (unpack)", de: "Setze das Verb ins Simple Past.", answer: ["unpacked"],
+        why: "„unpack“ + <b>-ed</b> = „unpacked“." },
+      { type: "error", prompt: "Last week we visit Nettersheim.", de: "Finde den Fehler und schreibe den Satz richtig.", answer: ["last week we visited nettersheim", "last week we visited nettersheim."],
+        wrongWord: "visit", correctWord: "visited",
+        why: "Der Satz spielt in der Vergangenheit. „visit“ braucht also ein <b>-ed</b>: „visited“." },
+      { type: "mc", prompt: "The class ___ fossils.", de: "Wähle die richtige Form.", options: ["collected", "collect", "collectd", "colected"], answer: "collected",
+        why: "„collect“ + <b>-ed</b> = „collected“." },
+    ],
+    miniRule: 'Regelmäßige Verben bekommen im Simple Past die Endung <span class="hl">-ed</span>. Beispiel: play → play<span class="hl">ed</span>.',
+  },
+  {
+    id: 2,
+    title: "Unregelmäßige Verben",
+    badge: "Level 2",
+    intro: {
+      main: "Manche Verben sind besonders – sie bekommen <b>kein -ed</b>. Diese Formen musst du auswendig lernen.",
+      formula: null,
+      examples: [],
+      table: [
+        ["go", "went"], ["eat", "ate"], ["build", "built"], ["have", "had"], ["do", "did"],
+        ["see", "saw"], ["take", "took"], ["buy", "bought"], ["get", "got"], ["give", "gave"],
+      ],
+      warn: null,
+    },
+    questions: [
+      { type: "mc", prompt: "We ___ to the forest.", de: "Wähle die richtige Form.", options: ["goed", "went", "go", "gone"], answer: "went",
+        why: "„go“ ist unregelmäßig. Es bekommt <b>kein -ed</b>. Die richtige Form ist „went“." },
+      { type: "input", prompt: "I ___ a big breakfast. (eat)", de: "Setze das Verb ins Simple Past.", answer: ["ate"],
+        why: "„eat“ ist unregelmäßig: eat → <b>ate</b>." },
+      { type: "mc", prompt: "They ___ a hut in the forest.", de: "Wähle die richtige Form.", options: ["builded", "built", "build", "buildt"], answer: "built",
+        why: "„build“ ist unregelmäßig: build → <b>built</b>. Kein -ed!" },
+      { type: "input", prompt: "We ___ a great time. (have)", de: "Setze das Verb ins Simple Past.", answer: ["had"],
+        why: "„have“ ist unregelmäßig: have → <b>had</b>." },
+      { type: "match", prompt: "Ordne die Verben ihrer Simple-Past-Form zu.", de: "Tippe erst links, dann rechts.",
+        pairs: [["go", "went"], ["eat", "ate"], ["see", "saw"], ["take", "took"]],
+        why: "Diese Verben sind unregelmäßig – du musst sie auswendig lernen." },
+      { type: "mc", prompt: "She ___ her homework.", de: "Wähle die richtige Form.", options: ["did", "doed", "done", "do"], answer: "did",
+        why: "„do“ ist unregelmäßig: do → <b>did</b>." },
+      { type: "input", prompt: "I ___ a bird in the sky. (see)", de: "Setze das Verb ins Simple Past.", answer: ["saw"],
+        why: "„see“ ist unregelmäßig: see → <b>saw</b>." },
+      { type: "mc", prompt: "He ___ a new book.", de: "Wähle die richtige Form.", options: ["buyed", "bought", "buys", "buy"], answer: "bought",
+        why: "„buy“ ist unregelmäßig: buy → <b>bought</b>." },
+      { type: "error", prompt: "Yesterday I goed to school.", de: "Finde den Fehler und schreibe den Satz richtig.", answer: ["yesterday i went to school", "yesterday i went to school."],
+        wrongWord: "goed", correctWord: "went",
+        why: "„go“ ist unregelmäßig. Es gibt kein „goed“. Richtig ist „went“." },
+      { type: "input", prompt: "We ___ the bus to Nettersheim. (take)", de: "Setze das Verb ins Simple Past.", answer: ["took"],
+        why: "„take“ ist unregelmäßig: take → <b>took</b>." },
+      { type: "match", prompt: "Ordne die Verben ihrer Simple-Past-Form zu.", de: "Tippe erst links, dann rechts.",
+        pairs: [["buy", "bought"], ["get", "got"], ["give", "gave"], ["build", "built"]],
+        why: "Unregelmäßige Verben muss man auswendig kennen." },
+    ],
+    miniRule: 'Unregelmäßige Verben bekommen <span class="hl">kein -ed</span>. Du musst sie auswendig lernen: go → <span class="hl">went</span>, eat → <span class="hl">ate</span>, see → <span class="hl">saw</span>.',
+  },
+  {
+    id: 3,
+    title: "was / were",
+    badge: "Level 3",
+    intro: {
+      main: "Das Verb <b>be</b> hat im Simple Past zwei Formen: <b>was</b> und <b>were</b>.",
+      formula: null,
+      examples: [],
+      table: [
+        ["I", "was"], ["he / she / it", "was"], ["we", "were"], ["you", "were"], ["they", "were"],
+      ],
+      warn: null,
+    },
+    questions: [
+      { type: "waswere", prompt: "Yesterday, I ___ at school.", de: "was oder were?", answer: "was",
+        why: "Bei „I“ benutzt du <b>was</b>." },
+      { type: "wasware", prompt: "My friends ___ at the party.", de: "was oder were?", answer: "were", options: ["was","were"],
+        why: "Bei „my friends“ (Mehrzahl) benutzt du <b>were</b>." },
+      { type: "wasware", prompt: "It ___ a great day.", de: "was oder were?", answer: "was", options: ["was","were"],
+        why: "Bei „it“ benutzt du <b>was</b>." },
+      { type: "wasware", prompt: "We ___ in Nettersheim.", de: "was oder were?", answer: "were", options: ["was","were"],
+        why: "Bei „we“ benutzt du <b>were</b>." },
+      { type: "wasware", prompt: "She ___ very happy.", de: "was oder were?", answer: "was", options: ["was","were"],
+        why: "Bei „she“ benutzt du <b>was</b>." },
+      { type: "wasware", prompt: "The boys ___ tired.", de: "was oder were?", answer: "were", options: ["was","were"],
+        why: "Bei „the boys“ (Mehrzahl) benutzt du <b>were</b>." },
+      { type: "input", prompt: "You ___ late for school. (be)", de: "was oder were? Tippe es ein.", answer: ["were"],
+        why: "Bei „you“ benutzt du immer <b>were</b>." },
+      { type: "wasware", prompt: "The weather ___ sunny.", de: "was oder were?", answer: "was", options: ["was","were"],
+        why: "„the weather“ ist Einzahl (it) – also <b>was</b>." },
+      { type: "error", prompt: "We was at the beach.", de: "Finde den Fehler und schreibe den Satz richtig.", answer: ["we were at the beach", "we were at the beach."],
+        wrongWord: "was", correctWord: "were",
+        why: "Bei „we“ benutzt du <b>were</b>, nicht „was“." },
+      { type: "input", prompt: "I ___ really tired. (be)", de: "was oder were? Tippe es ein.", answer: ["was"],
+        why: "Bei „I“ benutzt du <b>was</b>." },
+    ],
+    miniRule: 'Bei <span class="hl">I / he / she / it</span> benutzt du <span class="hl">was</span>. Bei <span class="hl">we / you / they</span> benutzt du <span class="hl">were</span>.',
+  },
+  {
+    id: 4,
+    title: "Verneinung mit didn't",
+    badge: "Level 4",
+    intro: {
+      main: "Um einen Satz zu verneinen, benutzt du <b>didn't</b> + Verb im <b>Infinitiv</b> (Grundform).",
+      formula: 'subject + <span class="hl">didn\'t</span> + verb',
+      examples: [
+        'I <b>didn\'t go</b> to school.',
+        'She <b>didn\'t play</b> football.',
+        'We <b>didn\'t watch</b> a film.',
+      ],
+      table: null,
+      warn: 'Nach <b>didn\'t</b> bleibt das Verb in der Grundform! <span class="x">didn\'t went ✗</span> &nbsp; <span class="ok">didn\'t go ✓</span>',
+    },
+    questions: [
+      { type: "mc", prompt: "I ___ to school yesterday.", de: "Wähle die richtige verneinte Form.", options: ["didn't went", "didn't go", "didn't goed", "not go"], answer: "didn't go",
+        why: "Nach <b>didn't</b> kommt die Grundform: „didn't go“. „didn't went“ ist falsch!" },
+      { type: "mc", prompt: "She ___ football.", de: "Wähle die richtige verneinte Form.", options: ["didn't played", "didn't play", "don't play", "didn't plays"], answer: "didn't play",
+        why: "Nach <b>didn't</b> kommt die Grundform: „didn't play“ – nicht „played“." },
+      { type: "error", prompt: "We didn't went to the cinema.", de: "Finde den Fehler und schreibe den Satz richtig.", answer: ["we didn't go to the cinema", "we didn't go to the cinema.", "we didnt go to the cinema", "we didnt go to the cinema."],
+        wrongWord: "went", correctWord: "go",
+        why: "Nach <b>didn't</b> bleibt das Verb in der Grundform. Richtig: „didn't go“." },
+      { type: "negate", prompt: "We visited the city.", de: "Schreibe den Satz in der Verneinung (mit didn't).", answer: ["we didn't visit the city", "we didn't visit the city.", "we didnt visit the city", "we didnt visit the city."],
+        why: "didn't + Grundform: „We didn't visit the city.“ Das -ed fällt weg!" },
+      { type: "negate", prompt: "I played football.", de: "Schreibe den Satz in der Verneinung (mit didn't).", answer: ["i didn't play football", "i didn't play football.", "i didnt play football", "i didnt play football."],
+        why: "didn't + Grundform: „I didn't play football.“" },
+      { type: "mc", prompt: "They ___ their homework.", de: "Wähle die richtige verneinte Form.", options: ["didn't did", "didn't do", "didn't done", "don't do"], answer: "didn't do",
+        why: "Nach <b>didn't</b> kommt die Grundform: „didn't do“." },
+      { type: "negate", prompt: "Dad bought presents.", de: "Schreibe den Satz in der Verneinung (mit didn't).", answer: ["dad didn't buy presents", "dad didn't buy presents.", "dad didnt buy presents", "dad didnt buy presents."],
+        why: "didn't + Grundform: „Dad didn't buy presents.“ Aus „bought“ wird wieder „buy“!" },
+      { type: "mc", prompt: "Kira ___ a sandwich.", de: "Wähle die richtige verneinte Form.", options: ["didn't had", "didn't have", "didn't has", "don't have"], answer: "didn't have",
+        why: "Nach <b>didn't</b> kommt die Grundform: „didn't have“ – nicht „had“." },
+      { type: "negate", prompt: "I liked it.", de: "Schreibe den Satz in der Verneinung (mit didn't).", answer: ["i didn't like it", "i didn't like it.", "i didnt like it", "i didnt like it."],
+        why: "didn't + Grundform: „I didn't like it.“" },
+      { type: "mc", prompt: "We ___ to the gardens.", de: "Wähle die richtige verneinte Form.", options: ["didn't walked", "didn't walk", "didn't walks", "not walked"], answer: "didn't walk",
+        why: "Nach <b>didn't</b> kommt die Grundform: „didn't walk“." },
+    ],
+    miniRule: 'Verneinung im Simple Past: <span class="hl">didn\'t</span> + Verb in der Grundform. Achtung: <span class="hl">didn\'t go</span> (nicht „didn\'t went“)!',
+  },
+  {
+    id: 5,
+    title: "Verneinung mit wasn't / weren't",
+    badge: "Level 5",
+    intro: {
+      main: "Die Verneinung von <b>was</b> und <b>were</b> ist <b>wasn't</b> und <b>weren't</b>.",
+      formula: null,
+      examples: [],
+      table: [
+        ["I", "wasn't"], ["he / she / it", "wasn't"], ["we", "weren't"], ["you", "weren't"], ["they", "weren't"],
+      ],
+      warn: 'Kurzformen: <b>was not = wasn\'t</b> &nbsp;&nbsp; <b>were not = weren\'t</b>',
+    },
+    questions: [
+      { type: "mc", prompt: "The film ___ boring – we loved it!", de: "Wähle die richtige Form.", options: ["weren't", "wasn't", "didn't", "isn't"], answer: "wasn't",
+        why: "„the film“ ist Einzahl (it) – also <b>wasn't</b>." },
+      { type: "mc", prompt: "We ___ at home on Saturday.", de: "Wähle die richtige Form.", options: ["wasn't", "weren't", "didn't", "aren't"], answer: "weren't",
+        why: "Bei „we“ benutzt du <b>weren't</b>." },
+      { type: "input", prompt: "It ___ cold yesterday. (was not)", de: "Schreibe die Kurzform.", answer: ["wasn't", "wasnt"],
+        why: "was not = <b>wasn't</b>." },
+      { type: "input", prompt: "They ___ at school. (were not)", de: "Schreibe die Kurzform.", answer: ["weren't", "werent"],
+        why: "were not = <b>weren't</b>." },
+      { type: "mc", prompt: "My friends ___ at the party.", de: "Wähle die richtige Form.", options: ["wasn't", "weren't", "didn't", "don't"], answer: "weren't",
+        why: "Bei „my friends“ (Mehrzahl) benutzt du <b>weren't</b>." },
+      { type: "error", prompt: "We wasn't at the beach.", de: "Finde den Fehler und schreibe den Satz richtig.", answer: ["we weren't at the beach", "we weren't at the beach.", "we werent at the beach", "we werent at the beach."],
+        wrongWord: "wasn't", correctWord: "weren't",
+        why: "Bei „we“ benutzt du <b>weren't</b>, nicht „wasn't“." },
+      { type: "mc", prompt: "I ___ tired after the trip.", de: "Wähle die richtige Form.", options: ["weren't", "wasn't", "didn't", "amn't"], answer: "wasn't",
+        why: "Bei „I“ benutzt du <b>wasn't</b>." },
+      { type: "negate", prompt: "The museum was boring.", de: "Schreibe den Satz in der Verneinung.", answer: ["the museum wasn't boring", "the museum wasn't boring.", "the museum wasnt boring", "the museum wasnt boring."],
+        why: "„the museum“ ist Einzahl – also <b>wasn't</b>: „The museum wasn't boring.“" },
+      { type: "negate", prompt: "They were hungry.", de: "Schreibe den Satz in der Verneinung.", answer: ["they weren't hungry", "they weren't hungry.", "they werent hungry", "they werent hungry."],
+        why: "Bei „they“ benutzt du <b>weren't</b>: „They weren't hungry.“" },
+      { type: "mc", prompt: "The weather ___ good.", de: "Wähle die richtige Form.", options: ["weren't", "wasn't", "didn't", "hadn't"], answer: "wasn't",
+        why: "„the weather“ ist Einzahl (it) – also <b>wasn't</b>." },
+    ],
+    miniRule: 'Verneinung von „be“: <span class="hl">wasn\'t</span> (I/he/she/it) und <span class="hl">weren\'t</span> (we/you/they).',
+  },
+];
+
+// ═══════════════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════════════
+let state = {
+  screen: "start",      // start | login | intro | question | levelcomplete | final | teacherlogin | dashboard
+  levelIndex: 0,
+  questionIndex: 0,
+  score: 0,
+  streak: 0,
+  bestStreak: 0,
+  levelScores: [],      // points per level
+  levelMistakes: [],    // mistakes per level (index = levelIndex)
+  shuffledQuestions: [],
+  answered: false,
+  mustRetype: false,    // true wenn Schüler die Lösung erst abschreiben muss
+  totalQuestions: 0,
+  student: null,        // { klasse, name } – wird im Anmeldebildschirm gesetzt
+  saved: false,         // true sobald das Ergebnis in Firebase gespeichert wurde
+};
+
+LEVELS.forEach(() => state.levelMistakes.push(0));
+
+LEVELS.forEach(l => state.totalQuestions += l.questions.length);
+
+// ═══════════════════════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════════════════════
+const app = document.getElementById("app");
+const POINTS = 10;
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function norm(s) {
+  return s
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    // alle Apostroph-/Anführungszeichen-Varianten zu einem einfachen ' vereinheitlichen
+    .replace(/[\u2018\u2019\u02BC\u0060\u00B4\u2032''`´]/g, "'")
+    // Leerzeichen rund um Apostroph entfernen (z.B. "didn ' t" -> "didn't")
+    .replace(/\s*'\s*/g, "'");
+}
+
+function questionsAnsweredSoFar() {
+  let n = 0;
+  for (let i = 0; i < state.levelIndex; i++) n += LEVELS[i].questions.length;
+  n += state.questionIndex;
+  return n;
+}
+
+function topbarHTML(showTeacher) {
+  return `
+    <div class="topbar">
+      <div class="flag">🇬🇧</div>
+      <div>
+        <h1>Simple Past</h1>
+        <div class="sub">Lern-App · Klasse 5</div>
+      </div>
+      <div class="spacer"></div>
+      ${showTeacher ? `<button class="teacher-link" onclick="renderTeacherLogin()">🔑 Lehrer</button>` : ``}
+      <button class="reset-btn" onclick="resetApp()">↻ Neu starten</button>
+    </div>`;
+}
+
+function progressHTML() {
+  const done = questionsAnsweredSoFar();
+  const pct = Math.round((done / state.totalQuestions) * 100);
+  return `
+    <div class="progress-wrap">
+      <div class="score-chip">⭐ ${state.score}</div>
+      <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div class="progress-label">${done} / ${state.totalQuestions}</div>
+      <div class="streak-chip ${state.streak >= 2 ? "active" : ""}">🔥 ${state.streak}</div>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  RENDER: START
+// ═══════════════════════════════════════════════════════════════
+function renderStart() {
+  state.screen = "start";
+  app.innerHTML = topbarHTML(true) + `
+    <div class="card start">
+      <div class="big-flag">🇬🇧</div>
+      <h2>Simple Past Challenge</h2>
+      <div class="tagline">Werde zum Simple-Past-Profi! 🌟</div>
+      <p>In dieser App übst du alles über das Simple Past: regelmäßige und unregelmäßige Verben, was/were und die Verneinung.</p>
+      <p>Du arbeitest dich durch <b>5 Level</b>. Vor jedem Level lernst du die Regel – danach kommen die Aufgaben. Bei jeder Antwort bekommst du eine Erklärung!</p>
+      <div class="level-pills">
+        ${LEVELS.map((l, i) => `<div class="level-pill"><span class="num">${i+1}</span> ${l.title}</div>`).join("")}
+      </div>
+      <button class="btn btn-primary" onclick="renderLogin()">Los geht's! 🚀</button>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  RENDER: SCHÜLER-ANMELDUNG (neu – nach Start, vor Level 1)
+// ═══════════════════════════════════════════════════════════════
+let loginDraft = { klasse: null, name: "" };
+
+function renderLogin() {
+  state.screen = "login";
+  loginDraft = { klasse: null, name: "" };
+  app.innerHTML = topbarHTML(false) + `
+    <div class="card login">
+      <div class="big-flag">🇬🇧</div>
+      <h2>Fast geschafft – melde dich kurz an!</h2>
+      <div class="login-q">In welcher Klasse bist du?</div>
+      <div class="class-grid">
+        ${["5a", "5e", "5f"].map(k =>
+          `<button class="class-btn" data-k="${k}" onclick="selectClass(this,'${k}')">${k}</button>`
+        ).join("")}
+      </div>
+      <div class="login-q">Wie heißt du?</div>
+      <input type="text" id="nameInput" class="text-input name-input" maxlength="20"
+             placeholder="Dein Vorname…" autocomplete="off"
+             oninput="onNameInput(this)" onkeydown="if(event.key==='Enter')finishLogin()">
+      <div class="privacy-hint">🔒 Bitte nur deinen <b>Vornamen</b> oder einen Spitznamen eingeben – <b>keinen Nachnamen</b>. Gespeichert wird nur, wie gut du im Quiz warst, damit deine Lehrerin/dein Lehrer sieht, was ihr noch üben könnt.</div>
+      <button id="loginGo" class="btn btn-primary" disabled onclick="finishLogin()">Los geht's! 🚀</button>
+    </div>`;
+}
+
+function selectClass(btn, k) {
+  loginDraft.klasse = k;
+  document.querySelectorAll(".class-btn").forEach(b => b.classList.remove("selected"));
+  btn.classList.add("selected");
+  updateLoginBtn();
+}
+
+function onNameInput(inp) {
+  loginDraft.name = inp.value.trim();
+  updateLoginBtn();
+}
+
+function updateLoginBtn() {
+  const b = document.getElementById("loginGo");
+  if (b) b.disabled = !(loginDraft.klasse && loginDraft.name.length > 0);
+}
+
+function finishLogin() {
+  if (!(loginDraft.klasse && loginDraft.name.length > 0)) return;
+  state.student = { klasse: loginDraft.klasse, name: loginDraft.name };
+  startLevel(0);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  RENDER: LEVEL INTRO (Merkkasten)
+// ═══════════════════════════════════════════════════════════════
+function renderIntro() {
+  const lvl = LEVELS[state.levelIndex];
+  const intro = lvl.intro;
+
+  let inner = `<div class="rule-box"><div class="rule-main">${intro.main}</div>`;
+  if (intro.formula) inner += `<div class="formula">${intro.formula}</div>`;
+  if (intro.examples && intro.examples.length) {
+    inner += `<div class="examples">${intro.examples.map(e => `<div class="ex">${e}</div>`).join("")}</div>`;
+  }
+  if (intro.table) {
+    inner += `<table class="rule-table">${intro.table.map(r => `<tr><td>${r[0]}</td><td><b>${r[1]}</b></td></tr>`).join("")}</table>`;
+  }
+  if (intro.warn) inner += `<div class="warn-box">⚠️ <span>${intro.warn}</span></div>`;
+  inner += `</div>`;
+
+  app.innerHTML = topbarHTML() + progressHTML() + `
+    <div class="card level-intro">
+      <div class="badge">📖 ${lvl.badge}</div>
+      <h2>${lvl.title}</h2>
+      ${inner}
+      <div class="actions">
+        <button class="btn btn-primary" onclick="beginQuestions()">Übung starten ✏️</button>
+      </div>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  RENDER: QUESTION
+// ═══════════════════════════════════════════════════════════════
+function renderQuestion() {
+  const lvl = LEVELS[state.levelIndex];
+  const q = state.shuffledQuestions[state.questionIndex];
+  state.answered = false;
+
+  let body = "";
+  const promptHTML = q.prompt.replace(/___/g, '<span class="blank">&nbsp;</span>');
+
+  if (q.type === "mc") {
+    const opts = shuffle(q.options);
+    body = `<div class="options">${opts.map((o, i) =>
+      `<button class="option" data-val="${o}" onclick="answerMC(this)"><span class="letter">${String.fromCharCode(65+i)}</span>${o}</button>`
+    ).join("")}</div>`;
+  } else if (q.type === "input" || q.type === "negate" || q.type === "error") {
+    const ph = q.type === "input" ? "Antwort eintippen…" : "Ganzen Satz eintippen…";
+    body = `
+      <div class="input-row">
+        <input type="text" class="text-input" id="answerInput" placeholder="${ph}" autocomplete="off" onkeydown="if(event.key==='Enter')checkInput()">
+        <button class="btn btn-navy check-btn" onclick="checkInput()">Prüfen</button>
+      </div>`;
+  } else if (q.type === "wasware" || q.type === "waswere") {
+    const opts = q.options || ["was", "were"];
+    body = `<div class="options">${opts.map((o, i) =>
+      `<button class="option" data-val="${o}" onclick="answerMC(this)"><span class="letter">${String.fromCharCode(65+i)}</span>${o}</button>`
+    ).join("")}</div>`;
+  } else if (q.type === "match") {
+    const lefts = q.pairs.map(p => p[0]);
+    const rights = shuffle(q.pairs.map(p => p[1]));
+    body = `
+      <div class="match-wrap">
+        <div class="match-col"><h4>Infinitiv</h4>
+          ${lefts.map(l => `<button class="match-item match-left" data-val="${l}" onclick="matchPick(this,'left')">${l}</button>`).join("")}
+        </div>
+        <div class="match-col"><h4>Simple Past</h4>
+          ${rights.map(r => `<button class="match-item match-right dropzone" data-val="${r}" onclick="matchPick(this,'right')">${r}</button>`).join("")}
+        </div>
+      </div>`;
+  }
+
+  app.innerHTML = topbarHTML() + progressHTML() + `
+    <div class="card">
+      <div class="q-head">
+        <span class="q-level-tag">${lvl.badge} · ${lvl.title}</span>
+        <button class="q-rule-link" onclick="showRulePopup()">📖 Regel ansehen</button>
+      </div>
+      <div class="q-prompt">${promptHTML}<span class="q-de">${q.de || ""}</span></div>
+      ${body}
+      <div class="feedback" id="feedback"></div>
+      <div class="q-actions" id="qActions"></div>
+    </div>`;
+
+  setTimeout(() => { const inp = document.getElementById("answerInput"); if (inp) inp.focus(); }, 100);
+
+  // matching state
+  matchState = { picked: null, matchedCount: 0, total: q.pairs ? q.pairs.length : 0, hadError: false };
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  ANSWER HANDLERS
+// ═══════════════════════════════════════════════════════════════
+function answerMC(btn) {
+  if (state.answered) return;
+  state.answered = true;
+  const q = state.shuffledQuestions[state.questionIndex];
+  const val = btn.getAttribute("data-val");
+  const correct = (val === q.answer);
+
+  document.querySelectorAll(".option").forEach(o => {
+    o.disabled = true;
+    const ov = o.getAttribute("data-val");
+    if (ov === q.answer) o.classList.add("correct");
+    if (o === btn && !correct) o.classList.add("wrong");
+  });
+
+  giveFeedback(correct, q, val);
+}
+
+function checkInput() {
+  if (state.answered) return;
+  const q = state.shuffledQuestions[state.questionIndex];
+  const inp = document.getElementById("answerInput");
+  if (!inp || inp.value.trim() === "") return;
+  state.answered = true;
+  const val = norm(inp.value);
+  const correct = q.answer.map(norm).includes(val);
+  inp.disabled = true;
+  inp.classList.add(correct ? "correct" : "wrong");
+  document.querySelector(".check-btn").disabled = true;
+  giveFeedback(correct, q, inp.value.trim());
+}
+
+let matchState = { picked: null, matchedCount: 0, total: 0, hadError: false };
+function matchPick(btn, side) {
+  if (state.answered) return;
+  if (btn.classList.contains("matched")) return;
+  const q = state.shuffledQuestions[state.questionIndex];
+
+  if (!matchState.picked) {
+    if (side !== "left") return; // start with left
+    matchState.picked = btn;
+    btn.classList.add("selected");
+    return;
+  }
+  // second pick must be right
+  if (side === "left") {
+    matchState.picked.classList.remove("selected");
+    matchState.picked = btn;
+    btn.classList.add("selected");
+    return;
+  }
+  const leftVal = matchState.picked.getAttribute("data-val");
+  const rightVal = btn.getAttribute("data-val");
+  const pair = q.pairs.find(p => p[0] === leftVal);
+  const isCorrect = pair && pair[1] === rightVal;
+
+  if (isCorrect) {
+    matchState.picked.classList.remove("selected");
+    matchState.picked.classList.add("matched");
+    btn.classList.add("matched");
+    matchState.picked = null;
+    matchState.matchedCount++;
+    if (matchState.matchedCount === matchState.total) {
+      state.answered = true;
+      // richtig nur, wenn KEIN Fehler in dieser Zuordnung gemacht wurde
+      giveFeedback(!matchState.hadError, q, "");
+    }
+  } else {
+    // falsche Zuordnung: Fehler merken, aber WEITER üben lassen
+    matchState.hadError = true;
+    const wrongLeft = matchState.picked;
+    const wrongRight = btn;
+    wrongLeft.classList.add("wrong");
+    wrongRight.classList.add("wrong");
+    matchState.picked.classList.remove("selected");
+    matchState.picked = null;
+    // kurzer Hinweis
+    showMatchHint(leftVal, pair ? pair[1] : "?");
+    setTimeout(() => {
+      wrongLeft.classList.remove("wrong");
+      wrongRight.classList.remove("wrong");
+    }, 600);
+  }
+}
+
+function showMatchHint(left, correctRight) {
+  let hint = document.getElementById("matchHint");
+  if (!hint) {
+    hint = document.createElement("div");
+    hint.id = "matchHint";
+    hint.style.cssText = "margin-top:16px;padding:12px 16px;border-radius:10px;background:var(--red-bg);border-left:6px solid var(--red);color:var(--ink);font-size:0.98rem;animation:slideUp 0.2s;";
+    const fb = document.getElementById("feedback");
+    fb.parentNode.insertBefore(hint, fb);
+  }
+  hint.innerHTML = `Das passt noch nicht zusammen. Tipp: <b>${left}</b> gehört zu <b style="color:var(--green)">${correctRight}</b>. Versuch es weiter!`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  FEEDBACK
+// ═══════════════════════════════════════════════════════════════
+function giveFeedback(correct, q, userVal) {
+  const fb = document.getElementById("feedback");
+  const card = app.querySelector(".card");
+
+  if (correct) {
+    state.score += POINTS;
+    state.streak++;
+    if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+    const praises = ["Super! 🎉", "Richtig! 👏", "Klasse! ⭐", "Perfekt! 🙌", "Stark! 💪", "Genau! ✅"];
+    const praise = praises[Math.floor(Math.random() * praises.length)];
+    fb.className = "feedback good show";
+    fb.innerHTML = `
+      <div class="fb-title">${praise}</div>
+      <div class="fb-body">${q.why || "Gut gemacht!"}</div>`;
+    if (card) { card.style.animation = "flash-green 0.6s"; }
+    showNextButton();
+  } else {
+    state.streak = 0;
+    state.levelMistakes[state.levelIndex]++;
+    const solHTML = solutionText(q);
+    fb.className = "feedback bad show";
+    fb.innerHTML = `
+      <div class="fb-title">Noch nicht ganz… 🤔</div>
+      <div class="fb-body">${q.why || ""}</div>
+      <div class="fb-correct">Richtige Lösung: <span class="sol">${solHTML}</span></div>`;
+    if (card) { card.classList.add("shake"); setTimeout(()=>card.classList.remove("shake"), 400); }
+
+    // Bei Eingabeaufgaben: Lösung muss abgeschrieben werden, bevor es weitergeht
+    if (q.type === "input" || q.type === "negate" || q.type === "error") {
+      showRetypeBox(q);
+    } else {
+      showNextButton();
+    }
+  }
+
+  refreshChips();
+}
+
+function showNextButton() {
+  const isLast = state.questionIndex === state.shuffledQuestions.length - 1;
+  document.getElementById("qActions").innerHTML =
+    `<button class="btn btn-primary" onclick="nextQuestion()">${isLast ? "Level abschließen ➜" : "Weiter ➜"}</button>`;
+}
+
+function showRetypeBox(q) {
+  const sol = solutionText(q);
+  const acts = document.getElementById("qActions");
+  acts.innerHTML = `
+    <div class="retype-wrap">
+      <div class="retype-label">✏️ Schreibe die richtige Lösung ab, dann geht es weiter:</div>
+      <div class="retype-row">
+        <input type="text" class="text-input retype-input" id="retypeInput" placeholder="Lösung abschreiben…" autocomplete="off" onkeydown="if(event.key==='Enter')checkRetype()">
+        <button class="btn btn-navy" onclick="checkRetype()">OK</button>
+      </div>
+      <div class="retype-hint" id="retypeHint"></div>
+    </div>`;
+  setTimeout(() => { const r = document.getElementById("retypeInput"); if (r) r.focus(); }, 80);
+}
+
+function checkRetype() {
+  const q = state.shuffledQuestions[state.questionIndex];
+  const inp = document.getElementById("retypeInput");
+  const hint = document.getElementById("retypeHint");
+  if (!inp) return;
+  const typed = norm(inp.value);
+  const ok = q.answer.map(norm).includes(typed);
+  if (ok) {
+    inp.classList.add("correct");
+    inp.disabled = true;
+    hint.innerHTML = `<span style="color:var(--green);font-weight:bold;">Richtig abgeschrieben! 👍</span>`;
+    // replace with next button
+    setTimeout(() => showNextButton(), 250);
+  } else {
+    inp.classList.remove("correct");
+    inp.classList.add("wrong");
+    hint.innerHTML = `<span style="color:var(--red);">Noch nicht ganz – schau auf die Lösung oben und versuch es nochmal.</span>`;
+    setTimeout(() => inp.classList.remove("wrong"), 500);
+  }
+}
+
+function solutionText(q) {
+  if (q.type === "mc" || q.type === "wasware" || q.type === "wasere" || q.type === "waswere") return q.answer;
+  if (q.type === "match") return q.pairs.map(p => `${p[0]} → ${p[1]}`).join(", ");
+  // input / negate / error -> first answer, prettified
+  let s = q.answer[0];
+  if (q.type === "negate" || q.type === "error") {
+    // full sentence: capitalize + period
+    s = s.charAt(0).toUpperCase() + s.slice(1);
+    if (!/[.!?]$/.test(s)) s += ".";
+  }
+  return s;
+}
+
+function refreshChips() {
+  const sc = app.querySelector(".score-chip");
+  if (sc) sc.innerHTML = `⭐ ${state.score}`;
+  const st = app.querySelector(".streak-chip");
+  if (st) {
+    st.innerHTML = `🔥 ${state.streak}`;
+    if (state.streak >= 2) st.classList.add("active"); else st.classList.remove("active");
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  RULE POPUP (während der Aufgaben)
+// ═══════════════════════════════════════════════════════════════
+function showRulePopup() {
+  const lvl = LEVELS[state.levelIndex];
+  const intro = lvl.intro;
+  let inner = `<div class="rule-box" style="margin:0"><div class="rule-main">${intro.main}</div>`;
+  if (intro.formula) inner += `<div class="formula">${intro.formula}</div>`;
+  if (intro.examples && intro.examples.length) inner += `<div class="examples">${intro.examples.map(e => `<div class="ex">${e}</div>`).join("")}</div>`;
+  if (intro.table) inner += `<table class="rule-table">${intro.table.map(r => `<tr><td>${r[0]}</td><td><b>${r[1]}</b></td></tr>`).join("")}</table>`;
+  if (intro.warn) inner += `<div class="warn-box">⚠️ <span>${intro.warn}</span></div>`;
+  inner += `</div>`;
+
+  const overlay = document.createElement("div");
+  overlay.style.cssText = "position:fixed;inset:0;background:rgba(26,35,126,0.55);display:grid;place-items:center;z-index:99;padding:20px;animation:slideUp 0.2s;";
+  overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+  overlay.innerHTML = `<div class="card" style="max-width:600px;width:100%;">
+    <div class="badge" style="display:inline-flex;align-items:center;gap:8px;background:var(--red);color:#fff;font-weight:bold;padding:6px 16px;border-radius:20px;font-size:0.85rem;margin-bottom:14px;">📖 ${lvl.badge}</div>
+    ${inner}
+    <div style="text-align:right;margin-top:18px;"><button class="btn btn-navy btn-sm" onclick="this.closest('div[style]').parentElement.remove()">Schließen</button></div>
+  </div>`;
+  document.body.appendChild(overlay);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════════════════════════
+function startLevel(idx) {
+  state.levelIndex = idx;
+  state.questionIndex = 0;
+  state.screen = "intro";
+  renderIntro();
+}
+
+function beginQuestions() {
+  const lvl = LEVELS[state.levelIndex];
+  const pinned = lvl.questions.filter(q => q.pin);
+  const rest = shuffle(lvl.questions.filter(q => !q.pin));
+  state.shuffledQuestions = [...pinned, ...rest];
+  state.questionIndex = 0;
+  state.screen = "question";
+  renderQuestion();
+}
+
+function nextQuestion() {
+  if (state.questionIndex < state.shuffledQuestions.length - 1) {
+    state.questionIndex++;
+    renderQuestion();
+  } else {
+    renderLevelComplete();
+  }
+}
+
+function renderLevelComplete() {
+  const lvl = LEVELS[state.levelIndex];
+  state.screen = "levelcomplete";
+  const isLastLevel = state.levelIndex === LEVELS.length - 1;
+
+  app.innerHTML = topbarHTML() + progressHTML() + `
+    <div class="card complete">
+      <div class="star-burst">🌟</div>
+      <h2>${lvl.title} geschafft!</h2>
+      <div class="level-score">Punkte gesamt: ${state.score} ⭐</div>
+      <div class="mini-rule">
+        <h4>📌 Merke dir:</h4>
+        <p>${lvl.miniRule}</p>
+      </div>
+      <div style="margin-top:24px;">
+        ${isLastLevel
+          ? `<button class="btn btn-primary" onclick="renderFinal()">Zum Ergebnis 🏆</button>`
+          : `<button class="btn btn-primary" onclick="startLevel(${state.levelIndex+1})">Nächstes Level ➜</button>`}
+      </div>
+    </div>`;
+}
+
+function renderFinal() {
+  state.screen = "final";
+  const maxScore = state.totalQuestions * POINTS;
+  const pct = Math.round((state.score / maxScore) * 100);
+  let stars = "⭐", msg = "";
+  if (pct >= 90) { stars = "⭐⭐⭐"; msg = "Wahnsinn! Du bist ein echter Simple-Past-Profi! 🏆"; }
+  else if (pct >= 70) { stars = "⭐⭐"; msg = "Super gemacht! Du kennst dich richtig gut aus. 🎉"; }
+  else if (pct >= 50) { stars = "⭐"; msg = "Gut gemacht! Übe noch ein bisschen weiter, dann sitzt es perfekt. 💪"; }
+  else { stars = "✨"; msg = "Schön, dass du geübt hast! Schau dir die Regeln nochmal an und versuche es erneut. 🌱"; }
+
+  // Individuelles Feedback pro Level
+  const tips = [];
+  let perfectLevels = 0;
+  LEVELS.forEach((lvl, i) => {
+    const m = state.levelMistakes[i] || 0;
+    if (m === 0) { perfectLevels++; }
+    else if (m >= 3) {
+      tips.push(`<div class="tip-row tip-hard"><b>${lvl.title}</b> – hier solltest du <b>nochmal üben</b> (${m} Fehler). Schau dir die Regel von Level ${lvl.id} in Ruhe an.</div>`);
+    } else {
+      tips.push(`<div class="tip-row tip-soft"><b>${lvl.title}</b> – fast perfekt, nur ${m} ${m===1?"kleiner Fehler":"kleine Fehler"}. Wiederhole es kurz, dann sitzt es!</div>`);
+    }
+  });
+
+  let tipsBlock = "";
+  if (tips.length === 0) {
+    tipsBlock = `<div class="tip-row tip-perfect">🌟 Alle Level fehlerfrei – richtig stark! Du beherrschst das Simple Past schon super.</div>`;
+  } else {
+    let intro = perfectLevels > 0
+      ? `<p class="tips-intro">${perfectLevels} Level hast du fehlerfrei geschafft! 🎉 Diese Themen solltest du noch ein bisschen üben:</p>`
+      : `<p class="tips-intro">Das solltest du noch ein bisschen üben:</p>`;
+    tipsBlock = intro + tips.join("");
+  }
+
+  app.innerHTML = topbarHTML() + `
+    <div class="card final">
+      <div class="trophy">🏆</div>
+      <h2>Geschafft${state.student ? ", " + escapeHTML(state.student.name) : ""}!</h2>
+      <div class="final-score">${state.score} / ${maxScore} Punkte</div>
+      <div class="stars">${stars}</div>
+      <div class="msg">${msg}</div>
+      <div id="saveStatus" class="save-status">💾 Dein Ergebnis wird gespeichert…</div>
+      <div class="tips-box">
+        <h4>📋 Dein persönliches Feedback</h4>
+        ${tipsBlock}
+      </div>
+      <div class="msg" style="font-size:0.95rem;">Längste Serie richtiger Antworten: 🔥 ${state.bestStreak}</div>
+      <button class="btn btn-primary" onclick="resetApp()">Nochmal spielen ↻</button>
+    </div>`;
+
+  // Ergebnis automatisch in Firebase speichern (nur einmal)
+  saveCurrentResult();
+}
+
+// kleine Hilfsfunktion: Namen sicher im HTML anzeigen (verhindert kaputtes Layout)
+function escapeHTML(s) {
+  return String(s).replace(/[&<>"']/g, c =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  ERGEBNIS IN FIREBASE FIRESTORE SPEICHERN
+// ═══════════════════════════════════════════════════════════════
+async function saveCurrentResult() {
+  if (state.saved) return;                 // doppeltes Speichern verhindern
+  const el = document.getElementById("saveStatus");
+  const maxScore = state.totalQuestions * POINTS;
+  const pct = Math.round((state.score / maxScore) * 100);
+
+  // Fehler pro Level als Objekt { 1: x, 2: y, ... } (Schlüssel = Level-ID)
+  const fehlerProLevel = {};
+  LEVELS.forEach((l, i) => { fehlerProLevel[l.id] = state.levelMistakes[i] || 0; });
+
+  const data = {
+    klasse: state.student ? state.student.klasse : "?",
+    name: state.student ? state.student.name : "?",
+    punkte: state.score,
+    maxPunkte: maxScore,
+    prozent: pct,
+    fehlerProLevel: fehlerProLevel,
+    laengsteStreak: state.bestStreak,
+    // zeitstempel wird in der Firebase-Funktion serverseitig gesetzt
+  };
+
+  // Wenn Firebase (noch) nicht bereit ist: freundlicher Hinweis, Ergebnis bleibt sichtbar
+  if (!window.SPF) {
+    if (el) {
+      el.className = "save-status warn";
+      el.innerHTML = "⚠️ Dein Ergebnis konnte nicht gespeichert werden (keine Verbindung). Macht nichts – du hast trotzdem super geübt! 🌟";
+    }
+    return;
+  }
+
+  try {
+    await window.SPF.saveResult(data);
+    state.saved = true;
+    if (el) {
+      el.className = "save-status ok";
+      el.innerHTML = "✅ Dein Ergebnis wurde gespeichert!";
+    }
+  } catch (e) {
+    // Speicherung fehlgeschlagen (z.B. kein Internet) – Ergebnis trotzdem zeigen
+    console.error("Speichern fehlgeschlagen:", e);
+    if (el) {
+      el.className = "save-status warn";
+      el.innerHTML = "⚠️ Dein Ergebnis konnte gerade nicht gespeichert werden (vielleicht kein Internet). Macht nichts – du hast trotzdem super geübt! 🌟";
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  LEHRER-LOGIN  (Button „🔑 Lehrer" oben rechts → nur Passwort)
+// ═══════════════════════════════════════════════════════════════
+function renderTeacherLogin() {
+  state.screen = "teacherlogin";
+  app.innerHTML = topbarHTML(false) + `
+    <div class="card teacher-login">
+      <div class="badge">🔑 Für Lehrkräfte</div>
+      <h2>Lehrer-Bereich</h2>
+      <p>Bitte das Passwort eingeben, um die Ergebnisse der Klassen zu sehen.</p>
+      <div class="input-row">
+        <input type="password" id="pwInput" class="text-input" placeholder="Passwort…"
+               autocomplete="off" onkeydown="if(event.key==='Enter')doTeacherLogin()">
+      </div>
+      <div id="pwError" class="pw-error"></div>
+      <div style="display:flex;gap:12px;margin-top:18px;flex-wrap:wrap;">
+        <button class="btn btn-ghost btn-sm" onclick="renderStart()">← Zurück</button>
+        <button class="btn btn-navy" id="pwBtn" onclick="doTeacherLogin()">Einloggen</button>
+      </div>
+    </div>`;
+  setTimeout(() => { const p = document.getElementById("pwInput"); if (p) p.focus(); }, 80);
+}
+
+async function doTeacherLogin() {
+  const inp = document.getElementById("pwInput");
+  const err = document.getElementById("pwError");
+  const btn = document.getElementById("pwBtn");
+  if (!inp || !inp.value) return;
+  if (!window.SPF) {
+    err.textContent = "Verbindung lädt noch – bitte kurz warten und nochmal versuchen.";
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = "Prüfe…";
+  err.textContent = "";
+  try {
+    // Passwort wird serverseitig von Firebase geprüft (steht NICHT im Code)
+    await window.SPF.teacherLogin(inp.value);
+    renderDashboard("alle");
+  } catch (e) {
+    console.error("Login fehlgeschlagen:", e);
+    err.textContent = "Passwort falsch oder keine Verbindung. Bitte nochmal versuchen.";
+    btn.disabled = false;
+    btn.textContent = "Einloggen";
+    inp.classList.add("wrong");
+    setTimeout(() => inp.classList.remove("wrong"), 500);
+  }
+}
+
+async function doTeacherLogout() {
+  try { if (window.SPF) await window.SPF.teacherLogout(); } catch (e) {}
+  renderStart();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  LEHRER-DASHBOARD
+// ═══════════════════════════════════════════════════════════════
+let dashCache = { rows: [], sort: "punkte", klasse: "alle" };
+
+async function renderDashboard(klasse) {
+  state.screen = "dashboard";
+  dashCache.klasse = klasse || "alle";
+  dashCache.sort = "punkte";
+  app.innerHTML = topbarHTML(false) + `
+    <div class="card dashboard">
+      <div class="dash-head">
+        <h2>📊 Klassenergebnisse</h2>
+        <button class="btn btn-ghost btn-sm" onclick="doTeacherLogout()">Logout ⏻</button>
+      </div>
+      <div id="dashBody"><p class="dash-loading">Lade Ergebnisse…</p></div>
+    </div>`;
+  try {
+    dashCache.rows = await window.SPF.fetchResults();
+    drawDashboard();
+  } catch (e) {
+    console.error("Laden fehlgeschlagen:", e);
+    const body = document.getElementById("dashBody");
+    if (body) body.innerHTML = `<p class="pw-error">Konnte die Ergebnisse nicht laden. Bitte Internetverbindung prüfen und neu einloggen.</p>`;
+  }
+}
+
+function setDashKlasse(k) { dashCache.klasse = k; drawDashboard(); }
+function setDashSort(s) { dashCache.sort = s; drawDashboard(); }
+
+function drawDashboard() {
+  const body = document.getElementById("dashBody");
+  if (!body) return;
+  const k = dashCache.klasse;
+
+  // Filtern nach Klasse
+  let rows = dashCache.rows.filter(r => k === "alle" ? true : r.klasse === k);
+
+  // Sortieren
+  if (dashCache.sort === "punkte") rows.sort((a, b) => (b.punkte || 0) - (a.punkte || 0));
+  else rows.sort((a, b) => (a.name || "").localeCompare(b.name || "", "de"));
+
+  // Statistik
+  const count = rows.length;
+  const avg = count ? Math.round(rows.reduce((s, r) => s + (r.punkte || 0), 0) / count) : 0;
+
+  // Welches Level hatte klassenweit die meisten Fehler?
+  const levelSum = {};
+  rows.forEach(r => {
+    const f = r.fehlerProLevel || {};
+    Object.keys(f).forEach(id => { levelSum[id] = (levelSum[id] || 0) + (f[id] || 0); });
+  });
+  let worstId = null, worstVal = -1;
+  Object.keys(levelSum).forEach(id => { if (levelSum[id] > worstVal) { worstVal = levelSum[id]; worstId = id; } });
+  const worstLevel = (worstId && worstVal > 0)
+    ? (LEVELS.find(l => String(l.id) === String(worstId)) || {}).title || ("Level " + worstId)
+    : "–";
+
+  // Filter-Buttons
+  const filters = ["5a", "5e", "5f", "alle"].map(f =>
+    `<button class="filter-btn ${k === f ? "active" : ""}" onclick="setDashKlasse('${f}')">${f === "alle" ? "Alle" : f}</button>`
+  ).join("");
+
+  // Tabelle
+  let tableHTML;
+  if (count === 0) {
+    tableHTML = `<p class="dash-empty">Noch keine Ergebnisse für ${k === "alle" ? "diese Auswahl" : "Klasse " + k}.</p>`;
+  } else {
+    const rowsHTML = rows.map(r => {
+      const f = r.fehlerProLevel || {};
+      const fehlerMini = LEVELS.map(l => `L${l.id}:<b>${f[l.id] != null ? f[l.id] : "–"}</b>`).join(" ");
+      return `<tr>
+        <td class="td-name">${escapeHTML(r.name || "?")}</td>
+        ${k === "alle" ? `<td>${escapeHTML(r.klasse || "?")}</td>` : ""}
+        <td class="td-pts">${r.punkte != null ? r.punkte : "?"}</td>
+        <td>${r.prozent != null ? r.prozent + " %" : "?"}</td>
+        <td class="dash-mini">${fehlerMini}</td>
+        <td>${formatDate(r.zeitstempel)}</td>
+      </tr>`;
+    }).join("");
+    tableHTML = `
+      <div class="sort-row">
+        <span>Sortieren:</span>
+        <button class="sort-btn ${dashCache.sort === "punkte" ? "active" : ""}" onclick="setDashSort('punkte')">Punkte ↓</button>
+        <button class="sort-btn ${dashCache.sort === "name" ? "active" : ""}" onclick="setDashSort('name')">Name A–Z</button>
+      </div>
+      <div class="dash-table-wrap">
+        <table class="dash-table">
+          <thead><tr>
+            <th>Name</th>
+            ${k === "alle" ? "<th>Klasse</th>" : ""}
+            <th>Punkte</th>
+            <th>Prozent</th>
+            <th>Fehler pro Level</th>
+            <th>Datum</th>
+          </tr></thead>
+          <tbody>${rowsHTML}</tbody>
+        </table>
+      </div>`;
+  }
+
+  body.innerHTML = `
+    <div class="dash-filters">${filters}</div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-num">${avg}</div><div class="stat-label">Ø Punkte</div></div>
+      <div class="stat-card"><div class="stat-num">${count}</div><div class="stat-label">Teilnehmer</div></div>
+      <div class="stat-card"><div class="stat-num small">${escapeHTML(worstLevel)}</div><div class="stat-label">meiste Fehler → hier wiederholen</div></div>
+    </div>
+    ${tableHTML}`;
+}
+
+// Firestore-Zeitstempel hübsch als Datum anzeigen
+function formatDate(ts) {
+  try {
+    let d = null;
+    if (ts && typeof ts.toDate === "function") d = ts.toDate();      // Firestore Timestamp
+    else if (ts && ts.seconds) d = new Date(ts.seconds * 1000);
+    else if (ts) d = new Date(ts);
+    if (!d || isNaN(d.getTime())) return "–";
+    return d.toLocaleDateString("de-DE") + " " + d.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" });
+  } catch (e) { return "–"; }
+}
+
+function resetApp() {
+  state = {
+    screen: "start", levelIndex: 0, questionIndex: 0, score: 0, streak: 0, bestStreak: 0,
+    levelScores: [], levelMistakes: [], shuffledQuestions: [], answered: false, mustRetype: false, totalQuestions: 0,
+    student: null, saved: false,
+  };
+  LEVELS.forEach(l => { state.totalQuestions += l.questions.length; state.levelMistakes.push(0); });
+  renderStart();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════════
+renderStart();
+
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     FIREBASE-ANBINDUNG  (modernes Firebase v9+ "modular" SDK per CDN)
+     ───────────────────────────────────────────────────────────────
+     Dieses Script lädt Firebase und stellt der App vier Funktionen
+     unter window.SPF bereit:
+       • SPF.saveResult(data)   → Schüler-Ergebnis speichern
+       • SPF.teacherLogin(pw)   → Lehrer-Login (Passwort serverseitig geprüft)
+       • SPF.teacherLogout()    → Lehrer ausloggen
+       • SPF.fetchResults()     → alle Ergebnisse lesen (nur eingeloggt)
+     ═══════════════════════════════════════════════════════════════ -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs, serverTimestamp }
+    from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+  import { getAuth, signInWithEmailAndPassword, signOut }
+    from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+  // ╔═══════════════════════════════════════════════════════════════╗
+  // ║  ❶ HIER DEINE FIREBASE-DATEN EINTRAGEN                         ║
+  // ║                                                               ║
+  // ║  So kommst du an diese Werte:                                  ║
+  // ║   1. https://console.firebase.google.com öffnen               ║
+  // ║   2. Dein Projekt anklicken (oder neu anlegen)                 ║
+  // ║   3. Zahnrad oben links → "Projekteinstellungen"              ║
+  // ║   4. Reiter "Allgemein" → ganz unten bei "Meine Apps" eine    ║
+  // ║      Web-App </> hinzufügen (falls noch keine da ist)          ║
+  // ║   5. Firebase kopiert dir dann genau dieses Objekt – einfach   ║
+  // ║      die Werte unten ersetzen.                                 ║
+  // ╚═══════════════════════════════════════════════════════════════╝
+  const firebaseConfig = {
+    apiKey:            "AIzaSyCx3KTM3B-h9HswjbARohubnHLfwWUJAPE",
+    authDomain:        "lernapp-simple-past.firebaseapp.com",
+    projectId:         "lernapp-simple-past",
+    storageBucket:     "lernapp-simple-past.firebasestorage.app",
+    messagingSenderId: "517097796169",
+    appId:             "1:517097796169:web:11e50b2d871ffa144c4598",
+  };
+
+  // ╔═══════════════════════════════════════════════════════════════╗
+  // ║  ❷ E-MAIL DES LEHRER-KONTOS                                    ║
+  // ║                                                               ║
+  // ║  Du legst in Firebase EINMALIG ein Lehrer-Konto an            ║
+  // ║  (Authentication → Users → "Add user"):                       ║
+  // ║     E-Mail:    die unten eingetragene Adresse                  ║
+  // ║     Passwort:  #Langela25                                      ║
+  // ║                                                               ║
+  // ║  Im Code steht NUR die E-Mail – das Passwort tippt die        ║
+  // ║  Lehrkraft ein und Firebase prüft es serverseitig.            ║
+  // ║  (Die Adresse muss keine echte E-Mail sein, nur eindeutig.)   ║
+  // ╚═══════════════════════════════════════════════════════════════╝
+  const TEACHER_EMAIL = "lehrer@simple-past.app";
+
+  let db = null, auth = null;
+  try {
+    const fbApp = initializeApp(firebaseConfig);
+    db   = getFirestore(fbApp);
+    auth = getAuth(fbApp);
+  } catch (e) {
+    console.error("Firebase-Initialisierung fehlgeschlagen – firebaseConfig prüfen:", e);
+  }
+
+  // Funktionen für die App bereitstellen
+  window.SPF = {
+    // Schüler-Ergebnis speichern (Zeitstempel kommt vom Server)
+    async saveResult(data) {
+      if (!db) throw new Error("Firebase nicht bereit");
+      data.zeitstempel = serverTimestamp();
+      return addDoc(collection(db, "results"), data);
+    },
+    // Lehrer-Login: Passwort wird von Firebase serverseitig geprüft
+    async teacherLogin(password) {
+      if (!auth) throw new Error("Firebase nicht bereit");
+      await signInWithEmailAndPassword(auth, TEACHER_EMAIL, password);
+      return true;
+    },
+    async teacherLogout() {
+      if (auth) await signOut(auth);
+    },
+    // Alle Ergebnisse lesen (klappt laut Security Rules nur eingeloggt)
+    async fetchResults() {
+      if (!db) throw new Error("Firebase nicht bereit");
+      const snap = await getDocs(collection(db, "results"));
+      return snap.docs.map(d => d.data());
+    },
+  };
+
+  /* ╔═══════════════════════════════════════════════════════════════╗
+     ║  ❸ FIRESTORE SECURITY RULES (in der Firebase-Konsole eintragen)║
+     ║  Firestore Database → Reiter "Regeln" → einfügen → "Veröffentlichen"
+     ║                                                               ║
+     ║  rules_version = '2';                                          ║
+     ║  service cloud.firestore {                                     ║
+     ║    match /databases/{database}/documents {                    ║
+     ║      match /results/{doc} {                                    ║
+     ║        // (a) JEDER darf ein Ergebnis SCHREIBEN (Schüler):     ║
+     ║        allow create: if true;                                 ║
+     ║        // (b) NUR eingeloggte Lehrer dürfen LESEN:             ║
+     ║        allow read: if request.auth != null;                   ║
+     ║        // Ändern/Löschen für niemanden über die App:           ║
+     ║        allow update, delete: if false;                        ║
+     ║      }                                                         ║
+     ║    }                                                           ║
+     ║  }                                                             ║
+     ╚═══════════════════════════════════════════════════════════════╝ */
+</script>
+</body>
+</html>
