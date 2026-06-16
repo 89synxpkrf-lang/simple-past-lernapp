@@ -1,0 +1,2040 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Das Passiv – Aktiv & Passiv | Klasse 8</title>
+<style>
+  /* ─── DESIGN-TOKENS (1:1 aus der Vorlage) ─────────────── */
+  :root {
+    --navy: #1A237E;
+    --navy-light: #283593;
+    --navy-dark: #131a5c;
+    --red: #C62828;
+    --red-light: #EF5350;
+    --gold: #FFD600;
+    --gold-soft: #FFE970;
+    --cream: #FAFAF5;
+    --paper: #FFFFFF;
+    --ink: #1A2E35;
+    --gray: #78909C;
+    --gray-light: #ECEFF1;
+    --green: #2E7D32;
+    --green-bg: #E8F5E9;
+    --red-bg: #FFEBEE;
+    --shadow: 0 8px 24px rgba(26,35,126,0.12);
+    --shadow-lg: 0 16px 48px rgba(26,35,126,0.20);
+    --radius: 18px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body { height: 100%; }
+
+  body {
+    font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
+    background:
+      radial-gradient(circle at 12% 18%, rgba(255,214,0,0.10), transparent 40%),
+      radial-gradient(circle at 88% 82%, rgba(198,40,40,0.08), transparent 40%),
+      linear-gradient(160deg, #f4f5fb 0%, #eef0f8 100%);
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .app {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 20px 16px 60px;
+    min-height: 100vh;
+  }
+
+  /* ─── TOP BAR ─────────────────────────────────────────── */
+  .topbar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--navy);
+    border-radius: var(--radius);
+    padding: 14px 20px;
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+  }
+  .topbar::after {
+    content: "";
+    position: absolute; right: -30px; top: -20px;
+    width: 140px; height: 140px;
+    background: var(--red);
+    opacity: 0.20;
+    transform: rotate(25deg);
+    border-radius: 20px;
+  }
+  .flag {
+    width: 46px; height: 46px; flex: none;
+    border-radius: 50%;
+    background:
+      conic-gradient(from 0deg, var(--navy) 0 25%, var(--red) 0 50%, var(--navy) 0 75%, var(--red) 0 100%);
+    border: 3px solid var(--gold);
+    position: relative; z-index: 1;
+    display: grid; place-items: center;
+    font-size: 22px;
+  }
+  .topbar h1 {
+    color: #fff; font-size: 1.25rem; z-index: 1;
+    letter-spacing: 0.5px;
+  }
+  .topbar .sub {
+    color: var(--gold); font-size: 0.78rem; font-weight: bold; z-index: 1;
+  }
+  .topbar .spacer { flex: 1; }
+  .reset-btn {
+    z-index: 1;
+    background: rgba(255,255,255,0.15);
+    color: #fff; border: 1.5px solid rgba(255,255,255,0.4);
+    border-radius: 10px; padding: 8px 14px;
+    font-family: inherit; font-size: 0.8rem; font-weight: bold;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .reset-btn:hover { background: rgba(255,255,255,0.28); }
+
+  /* ─── PROGRESS ────────────────────────────────────────── */
+  .progress-wrap {
+    display: flex; align-items: center; gap: 12px;
+    margin: 18px 4px 22px;
+  }
+  .progress-track {
+    flex: 1; height: 14px; background: var(--gray-light);
+    border-radius: 8px; overflow: hidden;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.12);
+  }
+  .progress-fill {
+    height: 100%; width: 0%;
+    background: linear-gradient(90deg, var(--gold), var(--gold-soft));
+    border-radius: 8px; transition: width 0.5s cubic-bezier(.2,.8,.2,1);
+  }
+  .progress-label { font-size: 0.82rem; font-weight: bold; color: var(--navy); white-space: nowrap; }
+  .score-chip {
+    background: var(--gold); color: var(--navy);
+    font-weight: bold; font-size: 0.85rem;
+    padding: 6px 14px; border-radius: 20px;
+    display: flex; align-items: center; gap: 6px;
+    box-shadow: var(--shadow);
+  }
+  .streak-chip {
+    background: var(--red); color: #fff;
+    font-weight: bold; font-size: 0.85rem;
+    padding: 6px 14px; border-radius: 20px;
+    display: none; align-items: center; gap: 6px;
+    box-shadow: var(--shadow);
+  }
+  .streak-chip.active { display: flex; animation: pop 0.4s; }
+
+  /* ─── CARDS ───────────────────────────────────────────── */
+  .card {
+    background: var(--paper);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 30px 28px;
+    animation: slideUp 0.4s cubic-bezier(.2,.8,.2,1);
+  }
+
+  /* ─── START SCREEN ────────────────────────────────────── */
+  .start { text-align: center; padding: 44px 28px; }
+  .start .big-flag {
+    width: 90px; height: 90px; margin: 0 auto 20px;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, var(--navy) 0 25%, var(--red) 0 50%, var(--navy) 0 75%, var(--red) 0 100%);
+    border: 5px solid var(--gold);
+    display: grid; place-items: center; font-size: 42px;
+    box-shadow: var(--shadow-lg);
+  }
+  .start h2 { font-size: 2.1rem; color: var(--navy); margin-bottom: 8px; }
+  .start .tagline { font-size: 1.05rem; color: var(--red); font-weight: bold; margin-bottom: 24px; }
+  .start p { color: var(--gray); max-width: 520px; margin: 0 auto 14px; line-height: 1.6; }
+
+  .level-pills { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 26px 0 32px; }
+  .level-pill {
+    background: var(--gray-light); color: var(--navy);
+    padding: 10px 16px; border-radius: 12px; font-size: 0.85rem; font-weight: bold;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .level-pill .num {
+    background: var(--navy); color: #fff; width: 24px; height: 24px;
+    border-radius: 50%; display: grid; place-items: center; font-size: 0.8rem;
+  }
+
+  /* ─── BUTTONS ─────────────────────────────────────────── */
+  .btn {
+    font-family: inherit; font-weight: bold; cursor: pointer;
+    border: none; border-radius: 14px; padding: 16px 34px;
+    font-size: 1.05rem; transition: transform 0.15s, box-shadow 0.2s, background 0.2s;
+    box-shadow: var(--shadow);
+  }
+  .btn:active { transform: translateY(2px); }
+  .btn-primary { background: var(--gold); color: var(--navy); }
+  .btn-primary:hover { background: var(--gold-soft); box-shadow: var(--shadow-lg); }
+  .btn-navy { background: var(--navy); color: #fff; }
+  .btn-navy:hover { background: var(--navy-light); }
+  .btn-ghost { background: transparent; color: var(--navy); box-shadow: none; border: 2px solid var(--navy); }
+  .btn-ghost:hover { background: var(--navy); color: #fff; }
+  .btn-sm { padding: 10px 18px; font-size: 0.85rem; border-radius: 10px; }
+
+  /* ─── LEVEL INTRO (Merkkasten) ────────────────────────── */
+  .level-intro .badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--red); color: #fff; font-weight: bold;
+    padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; margin-bottom: 14px;
+  }
+  .level-intro h2 { color: var(--navy); font-size: 1.7rem; margin-bottom: 18px; }
+  .rule-box {
+    background: linear-gradient(135deg, #fffdf2, #fff8d6);
+    border: 2.5px solid var(--gold);
+    border-left: 10px solid var(--gold);
+    border-radius: 14px; padding: 22px 24px; margin: 18px 0;
+  }
+  .rule-box .rule-main {
+    font-size: 1.3rem; color: var(--navy); font-weight: bold; margin-bottom: 14px; line-height: 1.4;
+  }
+  .rule-box .formula {
+    display: inline-block; background: var(--navy); color: #fff;
+    padding: 12px 22px; border-radius: 12px; font-size: 1.35rem;
+    margin: 8px 0; letter-spacing: 1px;
+  }
+  .rule-box .formula .hl { color: var(--gold); }
+  .rule-box .examples { margin-top: 14px; display: flex; flex-direction: column; gap: 7px; }
+  .rule-box .ex {
+    font-size: 1.08rem; color: var(--ink);
+    background: rgba(255,255,255,0.7); padding: 8px 14px; border-radius: 8px;
+  }
+  .rule-box .ex b { color: var(--red); }
+  .rule-box .ex .ed { color: var(--red); font-weight: bold; text-decoration: underline; }
+
+  .rule-table { width: 100%; border-collapse: collapse; margin-top: 12px; background: rgba(255,255,255,0.7); border-radius: 8px; overflow: hidden; }
+  .rule-table td { padding: 9px 14px; font-size: 1.05rem; border-bottom: 1px solid #eee; }
+  .rule-table td:first-child { font-family: 'Courier New', monospace; color: var(--gray); }
+  .rule-table td b { color: var(--navy); }
+
+  .warn-box {
+    background: var(--gold); border-radius: 12px; padding: 14px 18px;
+    margin-top: 14px; font-size: 1.0rem; color: var(--navy); font-weight: bold;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .warn-box .x { color: var(--red); }
+  .warn-box .ok { color: var(--green); }
+
+  .level-intro .actions { display: flex; gap: 12px; justify-content: center; margin-top: 26px; flex-wrap: wrap; }
+
+  /* ─── QUESTION SCREEN ─────────────────────────────────── */
+  .q-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .q-level-tag {
+    font-size: 0.78rem; font-weight: bold; color: var(--red);
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+  .q-rule-link {
+    font-size: 0.78rem; color: var(--navy); cursor: pointer;
+    text-decoration: underline; background: none; border: none; font-family: inherit;
+  }
+  .q-type { font-size: 0.85rem; color: var(--gray); margin-bottom: 16px; }
+  .q-prompt { font-size: 1.4rem; color: var(--navy); font-weight: bold; line-height: 1.5; margin-bottom: 24px; }
+  .q-prompt .blank { color: var(--red); border-bottom: 3px solid var(--red); padding: 0 22px; }
+  .q-prompt b { color: var(--red); background: #fff3cd; padding: 0 4px; border-radius: 4px; }
+  .q-de { font-size: 0.95rem; color: var(--gray); font-style: italic; font-weight: normal; display: block; margin-top: 6px; }
+
+  /* Multiple choice options */
+  .options { display: grid; gap: 12px; }
+  .option {
+    background: var(--cream); border: 2.5px solid var(--gray-light);
+    border-radius: 14px; padding: 16px 20px; font-size: 1.15rem; font-weight: bold;
+    color: var(--ink); cursor: pointer; text-align: left;
+    font-family: inherit; transition: all 0.15s;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .option:hover:not(:disabled) { border-color: var(--navy); transform: translateX(4px); }
+  .option .letter {
+    width: 30px; height: 30px; flex: none; border-radius: 8px;
+    background: var(--navy); color: #fff; display: grid; place-items: center; font-size: 0.95rem;
+  }
+  .option.correct { border-color: var(--green); background: var(--green-bg); }
+  .option.correct .letter { background: var(--green); }
+  .option.wrong { border-color: var(--red); background: var(--red-bg); }
+  .option.wrong .letter { background: var(--red); }
+  .option.picked { border-color: var(--gold); background: #fffbe6; transform: translateX(4px); }
+  .option.picked .letter { background: var(--gold); color: var(--navy); }
+  .option:disabled { cursor: default; }
+
+  /* Text input */
+  .input-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: stretch; }
+  .text-input {
+    flex: 1; min-width: 200px;
+    font-family: inherit; font-size: 1.3rem; font-weight: bold;
+    padding: 16px 20px; border: 2.5px solid var(--gray-light);
+    border-radius: 14px; color: var(--navy); background: var(--cream);
+    transition: border 0.2s;
+  }
+  .text-input:focus { outline: none; border-color: var(--navy); }
+  .text-input.correct { border-color: var(--green); background: var(--green-bg); }
+  .text-input.wrong { border-color: var(--red); background: var(--red-bg); }
+
+  /* Matching / drag */
+  .match-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; }
+  .match-col { display: flex; flex-direction: column; gap: 10px; }
+  .match-col h4 { font-size: 0.85rem; color: var(--gray); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .match-item {
+    background: var(--cream); border: 2.5px solid var(--gray-light);
+    border-radius: 12px; padding: 13px 16px; font-size: 1.1rem; font-weight: bold;
+    color: var(--ink); cursor: pointer; font-family: inherit; transition: all 0.15s; text-align: center;
+  }
+  .match-item.selected { border-color: var(--gold); background: #fffbe6; transform: scale(1.03); }
+  .match-item.matched { border-color: var(--green); background: var(--green-bg); cursor: default; opacity: 0.6; }
+  .match-item.dropzone { border-style: dashed; }
+
+  /* ─── DISCOVER (Sprachdetektiv) ───────────────────────── */
+  .disc-intro { font-size: 0.85rem; color: var(--gray); margin-bottom: 4px; }
+  .disc-examples { display: flex; flex-direction: column; gap: 8px; margin: 6px 0 18px; }
+  .disc-ex {
+    background: linear-gradient(135deg, #fffdf2, #fff8d6);
+    border: 2px solid var(--gold); border-radius: 12px;
+    padding: 12px 16px; font-size: 1.12rem; color: var(--navy); font-weight: bold;
+  }
+  .disc-ex u { color: var(--red); }
+  .disc-task { font-size: 1.2rem; color: var(--navy); font-weight: bold; line-height: 1.5; margin-bottom: 16px; }
+  .disc-reveal {
+    margin-top: 12px; background: var(--navy); color: #fff;
+    border-radius: 12px; padding: 16px 20px; font-size: 1.05rem; line-height: 1.55;
+  }
+  .disc-reveal b { color: var(--gold); }
+  .disc-reveal u { color: var(--gold-soft); }
+
+  /* ─── BUILD (Wortketten) ──────────────────────────────── */
+  .build-tray {
+    min-height: 62px; border: 2.5px dashed var(--navy-light); border-radius: 14px;
+    padding: 12px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+    background: var(--cream); margin-bottom: 16px;
+  }
+  .build-ph { color: var(--gray); font-style: italic; }
+  .chip-pool { display: flex; flex-wrap: wrap; gap: 10px; }
+  .chip {
+    font-family: inherit; font-weight: bold; font-size: 1.1rem; cursor: pointer;
+    background: var(--paper); border: 2.5px solid var(--gray-light); border-radius: 12px;
+    padding: 12px 16px; color: var(--navy); transition: all 0.15s; box-shadow: var(--shadow);
+  }
+  .chip:hover:not(:disabled) { border-color: var(--navy); transform: translateY(-2px); }
+  .chip.used { opacity: 0.30; cursor: default; }
+  .chip.placed { background: var(--navy); color: #fff; border-color: var(--navy); box-shadow: none; }
+  .chip:disabled { cursor: default; }
+
+  /* ─── CHALLENGE-MARKIERUNG (⭐ Knobel-Aufgabe) ─────────── */
+  .q-challenge {
+    display: inline-block; background: var(--gold); color: var(--navy);
+    font-weight: bold; font-size: 0.8rem; padding: 5px 12px; border-radius: 20px; margin-bottom: 12px;
+  }
+
+  /* ─── FEEDBACK ────────────────────────────────────────── */
+  .feedback {
+    margin-top: 22px; border-radius: 14px; padding: 18px 22px;
+    animation: slideUp 0.3s; display: none;
+  }
+  .feedback.show { display: block; }
+  .feedback.good { background: var(--green-bg); border-left: 8px solid var(--green); }
+  .feedback.bad { background: var(--red-bg); border-left: 8px solid var(--red); }
+  .feedback .fb-title { font-size: 1.15rem; font-weight: bold; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+  .feedback.good .fb-title { color: var(--green); }
+  .feedback.bad .fb-title { color: var(--red); }
+  .feedback .fb-body { font-size: 1.02rem; line-height: 1.55; color: var(--ink); }
+  .feedback .fb-body b { color: var(--navy); }
+  .feedback .fb-correct {
+    margin-top: 10px; font-size: 1.05rem; background: rgba(255,255,255,0.7);
+    padding: 10px 14px; border-radius: 8px;
+  }
+  .feedback .fb-correct .sol { color: var(--green); font-weight: bold; }
+  .feedback .fb-why {
+    margin: 10px 0; font-size: 1.06rem; line-height: 1.5; color: var(--ink);
+    background: var(--gold-soft); border: 2px dashed var(--red);
+    padding: 12px 14px; border-radius: 10px; font-weight: 600;
+  }
+  .feedback .fb-why b { color: var(--red); }
+  .feedback .fb-hint {
+    margin: 10px 0; font-size: 1.05rem; line-height: 1.5; color: var(--navy);
+    background: #eaf4ff; border-left: 6px solid var(--navy);
+    padding: 11px 14px; border-radius: 10px; font-weight: 600;
+  }
+  .feedback .fb-hint b { color: var(--red); }
+  .feedback .redo-instruct {
+    margin-top: 12px; font-size: 1.04rem; font-weight: bold; color: var(--navy);
+    background: rgba(255,255,255,0.75); padding: 10px 14px; border-radius: 8px;
+  }
+  .feedback .redo-instruct b { color: var(--red); }
+
+  .q-actions { display: flex; justify-content: flex-end; margin-top: 20px; gap: 12px; }
+  .check-btn { display: inline-block; }
+
+  /* ─── LEVEL COMPLETE ──────────────────────────────────── */
+  .complete { text-align: center; padding: 36px 28px; }
+  .complete .star-burst { font-size: 64px; margin-bottom: 14px; animation: pop 0.6s; }
+  .complete h2 { color: var(--navy); font-size: 1.9rem; margin-bottom: 10px; }
+  .complete .level-score { font-size: 1.2rem; color: var(--red); font-weight: bold; margin-bottom: 20px; }
+  .mini-rule {
+    background: var(--navy); color: #fff; border-radius: 14px; padding: 18px 22px;
+    margin: 20px auto; max-width: 560px; text-align: left;
+  }
+  .mini-rule h4 { color: var(--gold); margin-bottom: 8px; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1px; }
+  .mini-rule p { color: #fff; line-height: 1.5; }
+  .mini-rule .hl { color: var(--gold); font-weight: bold; }
+
+  /* ─── FINAL SCREEN ────────────────────────────────────── */
+  .final { text-align: center; padding: 40px 28px; }
+  .final .trophy { font-size: 80px; margin-bottom: 16px; animation: pop 0.7s; }
+  .final h2 { color: var(--navy); font-size: 2.2rem; margin-bottom: 12px; }
+  .final .final-score {
+    display: inline-block; background: var(--gold); color: var(--navy);
+    font-size: 1.5rem; font-weight: bold; padding: 14px 32px; border-radius: 16px;
+    margin: 12px 0 8px; box-shadow: var(--shadow);
+  }
+  .final .stars { font-size: 36px; margin: 10px 0 20px; letter-spacing: 6px; }
+  .final .msg { color: var(--gray); font-size: 1.1rem; max-width: 520px; margin: 0 auto 26px; line-height: 1.6; }
+
+  /* ─── ANIMATIONS ──────────────────────────────────────── */
+  @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes pop { 0% { transform: scale(0.6); } 60% { transform: scale(1.15); } 100% { transform: scale(1); } }
+  @keyframes shake { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-8px); } 40% { transform: translateX(8px); } 60% { transform: translateX(-5px); } 80% { transform: translateX(5px); } }
+  @keyframes flash-green { 0% { background: var(--green-bg); } 100% { background: var(--paper); } }
+  .shake { animation: shake 0.4s; }
+
+  /* ─── RETYPE (Lösung abschreiben) ─────────────────────── */
+  .retype-wrap { width: 100%; animation: slideUp 0.3s; }
+  .retype-label { font-size: 0.95rem; font-weight: bold; color: var(--navy); margin-bottom: 10px; }
+  .retype-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .retype-input { flex: 1; min-width: 200px; font-size: 1.15rem; }
+  .retype-hint { margin-top: 8px; font-size: 0.92rem; min-height: 18px; }
+
+  /* match wrong flash */
+  .match-item.wrong { border-color: var(--red); background: var(--red-bg); animation: shake 0.4s; }
+
+  /* ─── TIPS BOX (Endfeedback) ──────────────────────────── */
+  .tips-box {
+    background: var(--cream); border: 2px solid var(--gray-light);
+    border-radius: 14px; padding: 20px 22px; margin: 22px auto; max-width: 580px; text-align: left;
+  }
+  .tips-box h4 { color: var(--navy); font-size: 1.05rem; margin-bottom: 12px; }
+  .tips-intro { color: var(--gray); font-size: 0.95rem; margin-bottom: 12px; line-height: 1.5; }
+  .tip-row { padding: 11px 15px; border-radius: 10px; margin-bottom: 9px; font-size: 0.98rem; line-height: 1.45; color: var(--ink); }
+  .tip-row b { color: var(--navy); }
+  .tip-hard { background: var(--red-bg); border-left: 6px solid var(--red); }
+  .tip-soft { background: #FFF8E1; border-left: 6px solid var(--gold); }
+  .tip-perfect { background: var(--green-bg); border-left: 6px solid var(--green); font-weight: bold; }
+
+  /* ─── SCHÜLER-ANMELDUNG (nur Vorname) ─────────────────── */
+  .login { text-align: center; padding: 40px 28px; }
+  .login h2 { font-size: 1.8rem; color: var(--navy); margin-bottom: 6px; }
+  .login .login-q {
+    font-size: 1.15rem; color: var(--navy); font-weight: bold;
+    margin: 24px 0 14px;
+  }
+  .name-input { max-width: 420px; margin: 0 auto; text-align: center; width: 100%; }
+  .privacy-hint {
+    background: var(--gray-light); border-radius: 12px;
+    padding: 12px 16px; margin: 18px auto 24px; max-width: 460px;
+    font-size: 0.88rem; color: var(--gray); line-height: 1.5; text-align: left;
+  }
+  .privacy-hint b { color: var(--navy); }
+
+  /* ─── LEHRER-LINK (Topbar oben rechts) ────────────────── */
+  .teacher-link {
+    z-index: 1;
+    background: var(--gold); color: var(--navy);
+    border: none; border-radius: 10px; padding: 8px 14px;
+    font-family: inherit; font-size: 0.8rem; font-weight: bold;
+    cursor: pointer; transition: all 0.2s; margin-right: 8px;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .teacher-link:hover { background: var(--gold-soft); }
+
+  /* ─── LEHRER-LOGIN ────────────────────────────────────── */
+  .teacher-login { max-width: 480px; margin: 0 auto; }
+  .teacher-login .badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--navy); color: var(--gold); font-weight: bold;
+    padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; margin-bottom: 14px;
+  }
+  .teacher-login h2 { color: var(--navy); font-size: 1.6rem; margin-bottom: 8px; }
+  .teacher-login p { color: var(--gray); margin-bottom: 18px; line-height: 1.5; }
+  .pw-error { color: var(--red); font-weight: bold; font-size: 0.95rem; margin-top: 12px; min-height: 20px; }
+
+  /* ─── SPEICHER-STATUS (Endscreen) ─────────────────────── */
+  .save-status {
+    margin: 0 auto 22px; max-width: 520px; padding: 12px 18px;
+    border-radius: 12px; font-size: 0.98rem; font-weight: bold; line-height: 1.5;
+    background: var(--gray-light); color: var(--gray);
+  }
+  .save-status.ok { background: var(--green-bg); color: var(--green); }
+  .save-status.warn { background: var(--gold-soft); color: var(--navy); }
+
+  /* ─── LEHRER-DASHBOARD ────────────────────────────────── */
+  .dash-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 18px; }
+  .dash-head h2 { color: var(--navy); font-size: 1.5rem; }
+  .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+  .stat-card {
+    background: linear-gradient(135deg, #fffdf2, #fff8d6);
+    border: 2px solid var(--gold); border-radius: 14px; padding: 16px; text-align: center;
+  }
+  .stat-card .stat-num { font-size: 1.7rem; font-weight: bold; color: var(--navy); }
+  .stat-card .stat-label { font-size: 0.82rem; color: var(--gray); margin-top: 4px; line-height: 1.3; }
+  .stat-card .stat-num.small { font-size: 1.1rem; }
+  .sort-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-size: 0.9rem; color: var(--gray); flex-wrap: wrap; }
+  .sort-btn {
+    font-family: inherit; cursor: pointer; background: var(--gray-light);
+    border: none; border-radius: 8px; padding: 7px 14px; font-size: 0.85rem; font-weight: bold; color: var(--navy);
+  }
+  .sort-btn.active { background: var(--gold); }
+  .dash-table-wrap { overflow-x: auto; }
+  .dash-table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+  .dash-table th {
+    background: var(--navy); color: #fff; padding: 11px 12px; text-align: left;
+    font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;
+  }
+  .dash-table th:first-child { border-radius: 10px 0 0 0; }
+  .dash-table th:last-child { border-radius: 0 10px 0 0; }
+  .dash-table td { padding: 10px 12px; border-bottom: 1px solid var(--gray-light); color: var(--ink); }
+  .dash-table tr:nth-child(even) td { background: var(--cream); }
+  .dash-table .td-name { font-weight: bold; color: var(--navy); }
+  .dash-table .td-pts { font-weight: bold; color: var(--red); }
+  .dash-mini { font-size: 0.78rem; color: var(--gray); white-space: nowrap; }
+  .dash-mini b { color: var(--red); }
+  .dash-empty { text-align: center; color: var(--gray); padding: 30px; }
+  .dash-loading { text-align: center; color: var(--gray); padding: 30px; }
+
+  /* ─── RESPONSIVE ──────────────────────────────────────── */
+  @media (max-width: 600px) {
+    .q-prompt { font-size: 1.15rem; }
+    .match-wrap { gap: 12px; }
+    .start h2 { font-size: 1.6rem; }
+    .topbar h1 { font-size: 1.0rem; }
+    .btn { padding: 14px 24px; font-size: 0.95rem; }
+    .rule-box .formula { font-size: 1.05rem; }
+    .disc-task { font-size: 1.05rem; }
+    .disc-ex { font-size: 1.0rem; }
+    .chip { font-size: 1.0rem; padding: 11px 14px; }
+    .login h2 { font-size: 1.4rem; }
+    .stat-grid { grid-template-columns: 1fr; }
+    .teacher-link { padding: 7px 10px; font-size: 0.72rem; }
+    .reset-btn { padding: 7px 10px; font-size: 0.72rem; }
+  }
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+//  DAS PASSIV – AKTIV & PASSIV  (Klasse 8, Gesamtschule NRW)
+//  Offline-Folge-App zu „Simple Past – Fragen“.
+//  Gleiche Engine & gleiches Design, KEIN Firebase/Backend.
+//  Namenseingabe (nur Vorname, lokal). Thema: amerikanischer Süden.
+//  Mechaniken: discover (Sprachdetektiv) + build (Wortketten) +
+//  mc / input / error / match.
+// ═══════════════════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════════
+//  LEVEL-DATEN  (Wortfeld durchgängig: amerikanischer Süden –
+//  Raleigh/North Carolina, New Orleans/Mardi Gras, multikulturelle
+//  Gesellschaft, Südstaaten-Küche, afroamerikanische Geschichte)
+//  Es werden NUR die vorgegebenen Verben/3. Formen verwendet.
+// ═══════════════════════════════════════════════════════════════
+const LEVELS = [
+
+  // ─────────────────────────────────────────────────────────────
+  // LEVEL 1 – ENTDECKEN auf DEUTSCH: Was ist Passiv? (5 discover)
+  //  Ziel: Konzept Aktiv↔Passiv verstehen, erkennen dass das
+  //  Objekt nach vorne rückt. NOCH KEINE englische Form.
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: 1,
+    title: "Was ist Passiv?",
+    badge: "Level 1",
+    discoverFirst: true,
+    intro: null,
+    questions: [
+      {
+        type: "discover",
+        examples: [
+          "Aktiv: Die Franzosen gründeten die Stadt.",
+          "Passiv: Die Stadt wurde gegründet."
+        ],
+        task: "Worüber spricht der zweite Satz (Passiv) vor allem?",
+        options: [
+          "Darüber, WAS passiert (die Handlung).",
+          "Darüber, WER gerade Geburtstag hat.",
+          "Darüber, WIE das Wetter ist."
+        ],
+        answer: "Darüber, WAS passiert (die Handlung).",
+        reveal: "Im <b>Passiv</b> steht die <u>Handlung</u> im Vordergrund. <b>Wer</b> sie tut, ist nebensächlich."
+      },
+      {
+        type: "discover",
+        examples: [
+          "Aktiv: Die Franzosen gründeten <u>die Stadt</u>.",
+          "Passiv: <u>Die Stadt</u> wurde gegründet."
+        ],
+        task: "Im Aktivsatz ist „die Stadt“ das Objekt. Wo steht „die Stadt“ im Passivsatz?",
+        options: [
+          "Am Anfang – sie ist jetzt das Hauptwort (Subjekt).",
+          "Ganz am Ende des Satzes.",
+          "Sie ist komplett verschwunden."
+        ],
+        answer: "Am Anfang – sie ist jetzt das Hauptwort (Subjekt).",
+        reveal: "Der Kern: Das <u>Objekt</u> des Aktivsatzes <b>rückt im Passiv nach vorne</b> und wird zum Subjekt."
+      },
+      {
+        type: "discover",
+        examples: [
+          "In Louisiana spricht man Englisch und Französisch. → Englisch und Französisch werden gesprochen.",
+          "Man baut Reis in vielen Staaten an. → Reis wird angebaut."
+        ],
+        task: "Warum sagt man in diesen Passivsätzen nicht, WER es tut?",
+        options: [
+          "Weil unwichtig oder unbekannt ist, wer handelt.",
+          "Weil das im Deutschen verboten ist.",
+          "Weil man den Namen vergessen hat."
+        ],
+        answer: "Weil unwichtig oder unbekannt ist, wer handelt.",
+        reveal: "Passiv nimmt man, wenn der Handelnde <b>unbekannt</b> oder <b>unwichtig</b> ist."
+      },
+      {
+        type: "discover",
+        examples: [
+          "Die Stadt wurde <u>von den Franzosen</u> gegründet."
+        ],
+        task: "Wie sagst du im Passiv trotzdem, WER es getan hat?",
+        options: [
+          "Mit „von …“.",
+          "Mit „für …“.",
+          "Mit „ohne …“."
+        ],
+        answer: "Mit „von …“.",
+        reveal: "Wenn du den Handelnden nennen willst: <b>„von …“</b> (im Englischen später: <u>by …</u>)."
+      },
+      {
+        type: "discover",
+        multi: true,
+        task: "Welche dieser Sätze stehen im PASSIV? (Mehrere möglich – tippe sie an und dann „Fertig“.)",
+        options: [
+          "Neue Gerichte wurden gebracht.",
+          "Die Sklaven brachten neue Gerichte.",
+          "Mardi Gras wird jedes Jahr gefeiert.",
+          "Man feiert Mardi Gras jedes Jahr."
+        ],
+        answer: [
+          "Neue Gerichte wurden gebracht.",
+          "Mardi Gras wird jedes Jahr gefeiert."
+        ],
+        reveal: "Passiv erkennst du an <b>„wird / wurde … + Verbform“</b>. Die anderen Sätze sagen, <u>wer</u> handelt – das ist Aktiv."
+      }
+    ],
+    miniRule: "Im <span class='hl'>Passiv</span> steht die Handlung im Vordergrund. Das <span class='hl'>Objekt rückt nach vorne</span> und wird zum Subjekt – wer handelt, ist nebensächlich (optional „von …“)."
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // LEVEL 2 – ENTDECKEN der ENGLISCHEN FORM (5 discover)
+  //  Aufgaben/Erklärung deutsch, Beispiele englisch.
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: 2,
+    title: "How do you form the passive?",
+    badge: "Level 2",
+    discoverFirst: true,
+    intro: null,
+    questions: [
+      {
+        type: "discover",
+        examples: [
+          "Englisch wird gesprochen. → English <u>is spoken</u>.",
+          "Reis wird angebaut. → Rice <u>is grown</u>."
+        ],
+        task: "Aus welchen ZWEI Bausteinen besteht die englische Passivform (Gegenwart)?",
+        options: [
+          "am / are / is + 3. Form (past participle)",
+          "do / does + Grundform",
+          "will + Grundform"
+        ],
+        answer: "am / are / is + 3. Form (past participle)",
+        reveal: "<b>Passiv im Simple Present = am/are/is + 3. Form (past participle).</b>"
+      },
+      {
+        type: "discover",
+        examples: [
+          "English <u>is</u> spoken.",
+          "Spices <u>are</u> mixed."
+        ],
+        task: "Welche Form (am / are / is) passt wann?",
+        options: [
+          "Wie bei „to be“: I → am, he/she/it und Einzahl-Nomen → is, you/we/they und Mehrzahl → are.",
+          "Immer „is“.",
+          "Immer „are“."
+        ],
+        answer: "Wie bei „to be“: I → am, he/she/it und Einzahl-Nomen → is, you/we/they und Mehrzahl → are.",
+        reveal: "am/are/is richtet sich nach dem Subjekt – <b>genau wie bei „to be“: I am · he/she/it und Einzahl-Nomen is · you/we/they und Mehrzahl are.</b>"
+      },
+      {
+        type: "discover",
+        examples: [
+          "Die Stadt wurde gegründet. → The city <u>was founded</u>.",
+          "Die Straßen wurden gebaut. → The streets <u>were built</u>."
+        ],
+        task: "Wie bildest du das Passiv in der Vergangenheit (Simple Past)?",
+        options: [
+          "was / were + 3. Form",
+          "did + Grundform",
+          "had + Grundform"
+        ],
+        answer: "was / were + 3. Form",
+        reveal: "<b>Passiv im Simple Past = was/were + 3. Form.</b> (was/were wie bei „to be“: he/she/it und Einzahl-Nomen → was, you/we/they und Mehrzahl → were.)"
+      },
+      {
+        type: "discover",
+        examples: [
+          "Racism <u>isn't</u> accepted.",
+          "The airport <u>wasn't</u> finished."
+        ],
+        task: "Wo steht die Verneinung (not / n't)?",
+        options: [
+          "Direkt hinter am/are/is bzw. was/were.",
+          "Ganz am Satzanfang.",
+          "Ganz am Satzende."
+        ],
+        answer: "Direkt hinter am/are/is bzw. was/were.",
+        reveal: "<b>isn't / aren't</b> (Gegenwart) und <b>wasn't / weren't</b> (Vergangenheit) + 3. Form."
+      },
+      {
+        type: "discover",
+        examples: [
+          "The city was founded <u>by</u> the French.",
+          "New dishes were brought <u>by</u> the slaves."
+        ],
+        task: "Mit welchem Wort sagst du auf Englisch, WER die Handlung ausführt?",
+        options: [ "by", "from", "with" ],
+        answer: "by",
+        reveal: "<b>by + Handelnder</b> (= deutsch „von …“)."
+      }
+    ],
+    miniRule: "Present: <span class='hl'>am/are/is + 3. Form</span> · Past: <span class='hl'>was/were + 3. Form</span> · Verneinung: <span class='hl'>isn't/aren't/wasn't/weren't</span> · Handelnder: <span class='hl'>by …</span>"
+  },
+  // ─────────────────────────────────────────────────────────────
+  // LEVEL 3 – ÜBEN: Passive Simple Present (13 Items)
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: 3,
+    title: "Passive: Simple Present",
+    badge: "Level 3",
+    discoverFirst: false,
+    intro: {
+      main: "Das Passiv im Simple Present: Die Handlung ist wichtig – nicht, wer sie tut.",
+      formula: "am / are / is + <span class=\"hl\">3. Form</span>",
+      examples: [
+        "English <span class=\"ed\">is spoken</span> here.",
+        "Spices <span class=\"ed\">are mixed</span> together.",
+        "Racism <span class=\"ed\">isn't accepted</span>."
+      ],
+      warn: "am/are/is richtet sich nach dem Subjekt – wie bei „to be“: he/she/it und Einzahl-Nomen → is, you/we/they und Mehrzahl → are. Verneinung: isn't / aren't."
+    },
+    questions: [
+      { type: "input", prompt: "Pork ___ in many southern dishes. (use)", de: "Fülle nur die Lücke aus.",
+        answer: ["is used"], why: "Einzahl + Gegenwart: <b>is + used</b> (3. Form von use)." },
+      { type: "input", prompt: "Southern food ___ across the USA. (eat)", de: "Fülle nur die Lücke aus.",
+        answer: ["is eaten"], why: "<b>is + eaten</b> – die 3. Form von eat ist „eaten“." },
+      { type: "input", prompt: "Vegetables and meat ___ in the fridge. (keep)", de: "Fülle nur die Lücke aus.",
+        answer: ["are kept"], why: "Mehrzahl: <b>are + kept</b> (3. Form von keep)." },
+      { type: "input", prompt: "All these dishes ___ with rice. (make)", de: "Fülle nur die Lücke aus.",
+        answer: ["are made"], why: "Mehrzahl: <b>are + made</b> (3. Form von make)." },
+      { type: "input", prompt: "The vegetables ___ for very long. (not cook)", de: "Fülle nur die Lücke aus.",
+        answer: ["aren't cooked", "are not cooked"], why: "Verneinung Mehrzahl: <b>aren't + cooked</b>." },
+      { type: "input", prompt: "Sugar ___ to this savory dish. (not add)", de: "Fülle nur die Lücke aus.",
+        answer: ["isn't added", "is not added"], why: "Verneinung Einzahl: <b>isn't + added</b> (3. Form von add)." },
+      { type: "input", prompt: "Mardi Gras ___ in New Orleans every year. (celebrate)", de: "Fülle nur die Lücke aus.",
+        answer: ["is celebrated"], why: "Einzahl: <b>is + celebrated</b>." },
+
+      { type: "build", prompt: "Bilde den Passivsatz.", de: "Schreibe den ganzen Satz im Passiv.",
+        chips: ["The spices and flour", "are", "mixed", "."], answer: "The spices and flour are mixed .",
+        why: "Mehrzahl: <b>are + mixed</b> (3. Form von mix)." },
+      { type: "build", prompt: "Bilde den Passivsatz.", de: "Schreibe den ganzen Satz im Passiv.",
+        chips: ["The chicken pieces", "are", "washed", "."], answer: "The chicken pieces are washed .",
+        why: "Mehrzahl: <b>are + washed</b> (3. Form von wash)." },
+      { type: "build", prompt: "Bilde den Passivsatz.", de: "Schreibe den ganzen Satz im Passiv.",
+        chips: ["The chicken pieces", "are", "dried", "."], answer: "The chicken pieces are dried .",
+        why: "Mehrzahl: <b>are + dried</b> (3. Form von dry)." },
+      { type: "build", prompt: "Bilde den Passivsatz.", de: "Schreibe den ganzen Satz im Passiv.",
+        chips: ["The chicken", "is", "covered", "in flour", "."], answer: "The chicken is covered in flour .",
+        why: "Einzahl: <b>is + covered</b> (3. Form von cover)." },
+
+      { type: "match", prompt: "Grundform und 3. Form (past participle)", de: "Ordne zu.",
+        leftHead: "Grundform", rightHead: "3. Form",
+        pairs: [["speak", "spoken"], ["grow", "grown"], ["make", "made"], ["eat", "eaten"]],
+        why: "Diese 3. Formen brauchst du fürs Passiv." },
+
+      { type: "mc", pin: true, prompt: "Spices and flour ___ together. (mix)", de: "Wähle die richtige Form.",
+        options: ["are mixed", "is mixed", "were mixed", "mixes"], answer: "are mixed",
+        why: "„Spices and flour“ ist Mehrzahl und Gegenwart → <b>are mixed</b>." }
+    ],
+    miniRule: "Passiv Simple Present = <span class='hl'>am/are/is + 3. Form</span>; am/are/is wie bei „to be“ (he/she/it und Einzahl-Nomen → is, you/we/they und Mehrzahl → are); Verneinung <span class='hl'>isn't/aren't</span>."
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // LEVEL 4 – ÜBEN: Passive Simple Past (13 Items)
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: 4,
+    title: "Passive: Simple Past",
+    badge: "Level 4",
+    discoverFirst: false,
+    intro: {
+      main: "Das Passiv im Simple Past: Etwas, das schon passiert ist.",
+      formula: "was / were + <span class=\"hl\">3. Form</span>",
+      examples: [
+        "Raleigh <span class=\"ed\">was founded</span> in the 18th century.",
+        "The streets <span class=\"ed\">were built</span> later.",
+        "The airport <span class=\"ed\">wasn't finished</span> until 1929."
+      ],
+      warn: "Auch regelmäßig: to found → founded (gründen!). was/were wie bei „to be“: he/she/it und Einzahl-Nomen → was, you/we/they und Mehrzahl → were."
+    },
+    questions: [
+      { type: "input", prompt: "The city of Raleigh ___ in the 18th century. (found)", de: "Fülle nur die Lücke aus.",
+        answer: ["was founded"], why: "to found = gründen → <b>was founded</b> (regelmäßig, nicht „found“)." },
+      { type: "input", prompt: "The place ___ for the new capital. (choose)", de: "Fülle nur die Lücke aus.",
+        answer: ["was chosen"], why: "Einzahl: <b>was + chosen</b> (3. Form von choose)." },
+      { type: "input", prompt: "The city ___ from the beginning. (plan)", de: "Fülle nur die Lücke aus.",
+        answer: ["was planned"], why: "Einzahl: <b>was + planned</b>." },
+      { type: "input", prompt: "The city ___ the name of Sir Walter Raleigh. (give)", de: "Fülle nur die Lücke aus.",
+        answer: ["was given"], why: "Einzahl: <b>was + given</b> (3. Form von give)." },
+      { type: "input", prompt: "The streets ___ in a special way. (build)", de: "Fülle nur die Lücke aus.",
+        answer: ["were built"], why: "Mehrzahl: <b>were + built</b> (3. Form von build)." },
+      { type: "input", prompt: "People ___ by the new jobs. (attract)", de: "Fülle nur die Lücke aus.",
+        answer: ["were attracted"], why: "Mehrzahl: <b>were + attracted</b>." },
+      { type: "input", prompt: "The PNC Plaza ___ until 2008. (not complete)", de: "Fülle nur die Lücke aus.",
+        answer: ["wasn't completed", "was not completed"], why: "Verneinung Einzahl: <b>wasn't + completed</b>." },
+      { type: "input", prompt: "The land ___ to the state in the 1780s. (sell)", de: "Fülle nur die Lücke aus.",
+        answer: ["was sold"], why: "Einzahl: <b>was + sold</b> (3. Form von sell)." },
+      { type: "input", prompt: "The Executive Mansion ___ with materials from North Carolina. (make)", de: "Fülle nur die Lücke aus.",
+        answer: ["was made"], why: "Einzahl: <b>was + made</b>." },
+      { type: "input", prompt: "The South's first African-American college ___ in Raleigh in 1865. (open)", de: "Fülle nur die Lücke aus.",
+        answer: ["was opened"], why: "Einzahl: <b>was + opened</b>." },
+      { type: "input", prompt: "Work on the first airport ___ until 1929. (not finish)", de: "Fülle nur die Lücke aus.",
+        answer: ["wasn't finished", "was not finished"], why: "Verneinung Einzahl: <b>wasn't + finished</b>." },
+
+      { type: "mc", pin: true, prompt: "New dishes ___ here by the slaves. (bring)", de: "Wähle die richtige Form.",
+        options: ["were brought", "was brought", "are brought", "brought"], answer: "were brought",
+        why: "„New dishes“ ist Mehrzahl, Vergangenheit → <b>were brought</b> (3. Form von bring)." },
+
+      { type: "build", prompt: "Bilde den Passivsatz.", de: "Schreibe den ganzen Satz im Passiv.",
+        chips: ["The state laws", "were", "changed", "during the 1960s", "."],
+        answer: "The state laws were changed during the 1960s .",
+        why: "Mehrzahl, Vergangenheit: <b>were + changed</b>." }
+    ],
+    miniRule: "Passiv Simple Past = <span class='hl'>was/were + 3. Form</span>; was/were wie bei „to be“ (he/she/it und Einzahl-Nomen → was, you/we/they und Mehrzahl → were); Verneinung <span class='hl'>wasn't/weren't</span>."
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // LEVEL 5 – UMFORMEN: Active → Passive (14 Items, gemischt)
+  // ─────────────────────────────────────────────────────────────
+  {
+    id: 5,
+    title: "Active → Passive",
+    badge: "Level 5",
+    discoverFirst: false,
+    intro: {
+      main: "Vom Aktiv zum Passiv: Das Objekt rückt nach vorne und wird zum Subjekt.",
+      formula: "Objekt → <span class=\"hl\">is/are · was/were</span> + 3. Form",
+      examples: [
+        "Aktiv: People speak <b>English</b>.",
+        "Passiv: <b>English</b> <span class=\"ed\">is spoken</span>.",
+        "Mit by: The city <span class=\"ed\">was founded</span> by the French."
+      ],
+      warn: "Wer es tut, kommt mit „by …“ ans Ende – wenn es wichtig ist."
+    },
+    questions: [
+      // ── Nur 4 Aufgaben zum kompletten Selbst-Schreiben (Umformen Aktiv → Passiv) ──
+      { type: "input", prompt: "People do not accept <b>racism</b>.", de: "Schreibe den ganzen Satz im Passiv. Beginne mit dem markierten Wort.",
+        answer: ["racism is not accepted.", "racism is not accepted", "racism isn't accepted.", "racism isn't accepted"],
+        why: "Objekt „racism“ nach vorne: <b>Racism is not accepted.</b>" },
+      { type: "input", prompt: "The government supports <b>the idea</b>.", de: "Schreibe den ganzen Satz im Passiv. Sag mit „by …“, wer es tut.",
+        answer: ["the idea is supported by the government.", "the idea is supported by the government"],
+        why: "Objekt nach vorne, Handelnder mit by: <b>The idea is supported by the government.</b>" },
+      { type: "input", challenge: true, prompt: "The French founded <b>the city</b>.", de: "Schreibe den ganzen Satz im Passiv. Sag mit „by …“, wer es tut.",
+        answer: ["the city was founded by the french.", "the city was founded by the french"],
+        why: "Vergangenheit, Einzahl: <b>The city was founded by the French.</b>" },
+      { type: "input", challenge: true, prompt: "The slaves brought <b>new dishes</b>.", de: "Schreibe den ganzen Satz im Passiv. Sag mit „by …“, wer es tut.",
+        answer: ["new dishes were brought by the slaves.", "new dishes were brought by the slaves"],
+        why: "Vergangenheit, Mehrzahl „dishes“: <b>New dishes were brought by the slaves.</b>" },
+
+      // ── Wörter sortieren (Reihenfolge antippen) ──
+      { type: "build", first: true, prompt: "Bringe die Wörter in die richtige Reihenfolge.", de: "Tippe die Wörter in der richtigen Reihenfolge an.",
+        chips: ["English", "is", "spoken", "all over the world", "."],
+        answer: "English is spoken all over the world .",
+        why: "Subjekt + <b>is spoken</b> + Rest: English is spoken all over the world." },
+      { type: "build", first: true, prompt: "Bringe die Wörter in die richtige Reihenfolge.", de: "Tippe die Wörter in der richtigen Reihenfolge an.",
+        chips: ["The streets", "were", "built", "in a special way", "."],
+        answer: "The streets were built in a special way .",
+        why: "Subjekt + <b>were built</b> + Rest: The streets were built in a special way." },
+      { type: "build", prompt: "Bringe die Wörter in die richtige Reihenfolge.", de: "Tippe die Wörter in der richtigen Reihenfolge an.",
+        chips: ["Racism", "is", "not", "accepted", "here", "."],
+        answer: "Racism is not accepted here .",
+        why: "Verneinung: <b>is not (isn't) accepted</b>: Racism is not accepted here." },
+      { type: "build", prompt: "Bringe die Wörter in die richtige Reihenfolge.", de: "Tippe die Wörter in der richtigen Reihenfolge an.",
+        chips: ["The city", "was", "founded", "by the French", "."],
+        answer: "The city was founded by the French .",
+        why: "Vergangenheit + Handelnder: <b>was founded by …</b>: The city was founded by the French." },
+      { type: "build", prompt: "Bringe die Wörter in die richtige Reihenfolge.", de: "Tippe die Wörter in der richtigen Reihenfolge an.",
+        chips: ["Special lessons", "are", "organized", "for new people", "."],
+        answer: "Special lessons are organized for new people .",
+        why: "Mehrzahl: <b>are organized</b>: Special lessons are organized for new people." },
+
+      // ── Lücken füllen (nur die Lücke schreiben) ──
+      { type: "input", prompt: "More than one language ___ in this city. (speak)", de: "Fülle nur die Lücke aus.",
+        answer: ["is spoken"], why: "Einzahl „language“ → <b>is + spoken</b> (3. Form von speak)." },
+      { type: "input", prompt: "Dishes from all around the world ___ in the restaurants. (serve)", de: "Fülle nur die Lücke aus.",
+        answer: ["are served"], why: "Mehrzahl „dishes“ → <b>are + served</b>." },
+      { type: "input", prompt: "The cultural life of New Orleans ___ by visitors. (appreciate)", de: "Fülle nur die Lücke aus.",
+        answer: ["is appreciated"], why: "Einzahl „life“ → <b>is + appreciated</b> (der Handelnde steht schon mit „by …“ da)." },
+      { type: "input", prompt: "Immigrants ___ by a small minority. (not respect)", de: "Fülle nur die Lücke aus.",
+        answer: ["aren't respected", "are not respected"], why: "Mehrzahl + Verneinung → <b>aren't + respected</b>." },
+
+      // ── Multiple Choice ──
+      { type: "mc", prompt: "People from other countries ___ by these societies. (welcome)", de: "Wähle die richtige Form.",
+        options: ["are welcomed", "is welcomed", "were welcomed", "welcomes"], answer: "are welcomed",
+        why: "„People“ ist Mehrzahl und Gegenwart → <b>are welcomed</b>." }
+    ],
+    miniRule: "Aktiv → Passiv: <span class='hl'>Objekt nach vorne</span> + <span class='hl'>am/are/is bzw. was/were + 3. Form</span>; Handelnder mit <span class='hl'>by …</span>."
+  }
+];
+
+// ═══════════════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════════════
+let state = {
+  screen: "start",      // start | login | intro | question | levelcomplete | final
+  levelIndex: 0,
+  questionIndex: 0,
+  score: 0,
+  streak: 0,
+  bestStreak: 0,
+  levelMistakes: [],    // Fehler pro Level (nur „echte“ Übungen, nicht discover)
+  shuffledQuestions: [],
+  answered: false,
+  totalQuestions: 0,
+  student: null,        // { name } – wird im Anmeldebildschirm gesetzt
+  saved: false,         // ob das Ergebnis schon gespeichert wurde
+};
+
+LEVELS.forEach(() => state.levelMistakes.push(0));
+LEVELS.forEach(l => state.totalQuestions += l.questions.length);
+
+// ═══════════════════════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════════════════════
+const app = document.getElementById("app");
+const POINTS = 10;
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// Apostroph-/Leerzeichen-tolerante Normalisierung (wie in der Vorlage)
+function norm(s) {
+  return s
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .replace(/[‘’ʼ`´′'']/g, "'")
+    .replace(/\s*'\s*/g, "'");
+}
+
+// Vergleich für Wortketten (build): Fragezeichen optional, Leerzeichen tolerant
+function normBuild(s) {
+  return norm(s).replace(/[?]/g, "").replace(/\s+/g, " ").trim();
+}
+
+function questionsAnsweredSoFar() {
+  let n = 0;
+  for (let i = 0; i < state.levelIndex; i++) n += LEVELS[i].questions.length;
+  n += state.questionIndex;
+  return n;
+}
+
+function topbarHTML(showTeacher = true) {
+  return `
+    <div class="topbar">
+      <div class="flag">🇺🇸</div>
+      <div>
+        <h1>Das Passiv</h1>
+        <div class="sub">Aktiv & Passiv · Klasse 8</div>
+      </div>
+      <div class="spacer"></div>
+      ${showTeacher ? `<button class="teacher-link" onclick="renderTeacherLogin()">🔑 Lehrer</button>` : ""}
+      <button class="reset-btn" onclick="resetApp()">↻ Neu starten</button>
+    </div>`;
+}
+
+function progressHTML() {
+  const done = questionsAnsweredSoFar();
+  const pct = Math.round((done / state.totalQuestions) * 100);
+  return `
+    <div class="progress-wrap">
+      <div class="score-chip">⭐ ${state.score}</div>
+      <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div class="progress-label">${done} / ${state.totalQuestions}</div>
+      <div class="streak-chip ${state.streak >= 2 ? "active" : ""}">🔥 ${state.streak}</div>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  RENDER: START
+// ═══════════════════════════════════════════════════════════════
+function renderStart() {
+  state.screen = "start";
+  app.innerHTML = topbarHTML() + `
+    <div class="card start">
+      <div class="big-flag">🇺🇸</div>
+      <h2>Das Passiv</h2>
+      <div class="tagline">Aktiv & Passiv – entdecke selbst, wie es funktioniert! 🔎</div>
+      <p>In dieser App wirst du zum <b>Sprachdetektiv</b>: Du findest selbst heraus, was das <b>Passiv</b> ist und wie man es im Englischen bildet. Alle Beispiele kommen aus dem <b>amerikanischen Süden</b> – Raleigh, New Orleans, Mardi Gras und die Südstaaten-Küche.</p>
+      <p>Du arbeitest dich durch <b>5 Level</b>. Zuerst entdeckst du die Regeln selbst – danach übst du. Bei jeder Antwort bekommst du eine Erklärung!</p>
+      <div class="level-pills">
+        ${LEVELS.map((l, i) => `<div class="level-pill"><span class="num">${i+1}</span> ${l.title}</div>`).join("")}
+      </div>
+      <button class="btn btn-primary" onclick="renderLogin()">Los geht's! 🚀</button>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  RENDER: NAMENSEINGABE (nur Vorname, lokal) – vor Level 1
+// ═══════════════════════════════════════════════════════════════
+let loginDraft = { name: "" };
+
+function renderLogin() {
+  state.screen = "login";
+  loginDraft = { name: "" };
+  app.innerHTML = topbarHTML() + `
+    <div class="card login">
+      <div class="big-flag">🇺🇸</div>
+      <h2>Fast geschafft – wie heißt du?</h2>
+      <div class="login-q">Dein Vorname</div>
+      <input type="text" id="nameInput" class="text-input name-input" maxlength="20"
+             placeholder="Dein Vorname…" autocomplete="off"
+             oninput="onNameInput(this)" onkeydown="if(event.key==='Enter')finishLogin()">
+      <div class="privacy-hint">🔒 Gib einfach deinen <b>Vornamen</b> oder einen <b>Spitznamen</b> ein – <b>keinen Nachnamen</b>. Am Ende werden nur dein Vorname und deine Punkte gespeichert, damit deine Lehrkraft sehen kann, wie es lief.</div>
+      <button id="loginGo" class="btn btn-primary" disabled onclick="finishLogin()">Los geht's! 🚀</button>
+    </div>`;
+  setTimeout(() => { const inp = document.getElementById("nameInput"); if (inp) inp.focus(); }, 100);
+}
+
+function onNameInput(inp) {
+  loginDraft.name = inp.value.trim();
+  updateLoginBtn();
+}
+
+function updateLoginBtn() {
+  const b = document.getElementById("loginGo");
+  if (b) b.disabled = !(loginDraft.name.length > 0);
+}
+
+function finishLogin() {
+  if (!(loginDraft.name.length > 0)) return;
+  state.student = { name: loginDraft.name };
+  startLevel(0);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  RENDER: LEVEL INTRO (Merkkasten – nur bei Übungsleveln)
+// ═══════════════════════════════════════════════════════════════
+function renderIntro() {
+  const lvl = LEVELS[state.levelIndex];
+  const intro = lvl.intro;
+
+  let inner = `<div class="rule-box"><div class="rule-main">${intro.main}</div>`;
+  if (intro.formula) inner += `<div class="formula">${intro.formula}</div>`;
+  if (intro.examples && intro.examples.length) {
+    inner += `<div class="examples">${intro.examples.map(e => `<div class="ex">${e}</div>`).join("")}</div>`;
+  }
+  if (intro.table) {
+    inner += `<table class="rule-table">${intro.table.map(r => `<tr><td>${r[0]}</td><td><b>${r[1]}</b></td></tr>`).join("")}</table>`;
+  }
+  if (intro.warn) inner += `<div class="warn-box">⚠️ <span>${intro.warn}</span></div>`;
+  inner += `</div>`;
+
+  app.innerHTML = topbarHTML() + progressHTML() + `
+    <div class="card level-intro">
+      <div class="badge">📖 ${lvl.badge}</div>
+      <h2>${lvl.title}</h2>
+      ${inner}
+      <div class="actions">
+        <button class="btn btn-primary" onclick="beginQuestions()">Übung starten ✏️</button>
+      </div>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  RENDER: QUESTION
+// ═══════════════════════════════════════════════════════════════
+function renderQuestion() {
+  const lvl = LEVELS[state.levelIndex];
+  const q = state.shuffledQuestions[state.questionIndex];
+  state.answered = false;
+  qWrong = false;   // pro Frage zurücksetzen (für „erst richtig, dann weiter“)
+
+  // Entdeckungs-Screen hat ein eigenes Layout
+  if (q.type === "discover") { renderDiscoverCard(lvl, q); return; }
+
+  let body = "";
+  const promptHTML = (q.prompt || "").replace(/___/g, '<span class="blank">&nbsp;</span>');
+
+  if (q.type === "mc") {
+    const opts = shuffle(q.options);
+    body = `<div class="options">${opts.map((o, i) =>
+      `<button class="option" data-val="${o}" onclick="answerMC(this)"><span class="letter">${String.fromCharCode(65+i)}</span>${o}</button>`
+    ).join("")}</div>`;
+  } else if (q.type === "input" || q.type === "negate" || q.type === "error") {
+    const ph = q.type === "input" ? "Antwort eintippen…" : "Ganzen Satz eintippen…";
+    body = `
+      <div class="input-row">
+        <input type="text" class="text-input" id="answerInput" placeholder="${ph}" autocomplete="off" onkeydown="if(event.key==='Enter')checkInput()">
+        <button class="btn btn-navy check-btn" onclick="checkInput()">Prüfen</button>
+      </div>`;
+  } else if (q.type === "build") {
+    const chips = q.chips.map((c, i) => ({ t: c, i }));
+    const pool = shuffle(chips);
+    buildState = { order: [] };
+    body = `
+      <div class="build-tray" id="buildTray"><span class="build-ph">Tippe die Wörter unten an…</span></div>
+      <div class="chip-pool">${pool.map(c =>
+        `<button class="chip" data-i="${c.i}" onclick="buildPick(${c.i})">${c.t}</button>`
+      ).join("")}</div>`;
+  } else if (q.type === "match") {
+    const lefts = q.pairs.map(p => p[0]);
+    const rights = shuffle(q.pairs.map(p => p[1]));
+    body = `
+      <div class="match-wrap">
+        <div class="match-col"><h4>${q.leftHead || "Grundform"}</h4>
+          ${lefts.map(l => `<button class="match-item match-left" data-val="${l}" onclick="matchPick(this,'left')">${l}</button>`).join("")}
+        </div>
+        <div class="match-col"><h4>${q.rightHead || "3. Form"}</h4>
+          ${rights.map(r => `<button class="match-item match-right dropzone" data-val="${r}" onclick="matchPick(this,'right')">${r}</button>`).join("")}
+        </div>
+      </div>`;
+  }
+
+  // „Regel ansehen“ nur, wenn es einen Merkkasten gibt (nicht in Entdeckungsleveln ohne intro)
+  const ruleLink = lvl.intro ? `<button class="q-rule-link" onclick="showRulePopup()">📖 Regel ansehen</button>` : "";
+  const challenge = q.challenge ? `<div class="q-challenge">⭐ Knobel-Aufgabe</div>` : "";
+
+  // Build-Aufgaben brauchen einen Prüfen-Button im Aktionsbereich
+  const buildAction = q.type === "build"
+    ? `<button class="btn btn-navy" onclick="checkBuild()">Prüfen</button>` : "";
+
+  app.innerHTML = topbarHTML() + progressHTML() + `
+    <div class="card">
+      <div class="q-head">
+        <span class="q-level-tag">${lvl.badge} · ${lvl.title}</span>
+        ${ruleLink}
+      </div>
+      ${challenge}
+      <div class="q-prompt">${promptHTML}<span class="q-de">${q.de || ""}</span></div>
+      ${body}
+      <div class="feedback" id="feedback"></div>
+      <div class="q-actions" id="qActions">${buildAction}</div>
+    </div>`;
+
+  setTimeout(() => { const inp = document.getElementById("answerInput"); if (inp) inp.focus(); }, 100);
+
+  matchState = { picked: null, matchedCount: 0, total: q.pairs ? q.pairs.length : 0, hadError: false };
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  RENDER: DISCOVER (Sprachdetektiv)
+// ═══════════════════════════════════════════════════════════════
+let discoverSel = new Set();
+
+function renderDiscoverCard(lvl, q) {
+  state.answered = false;
+  qWrong = false;
+  discoverSel = new Set();
+
+  const exHTML = (q.examples && q.examples.length)
+    ? `<div class="disc-examples">${q.examples.map(e => `<div class="disc-ex">${e}</div>`).join("")}</div>` : "";
+
+  const handler = q.multi ? "toggleDiscover(this)" : "answerDiscover(this)";
+  const shuffledOpts = shuffle(q.options);   // sonst stünde die richtige Lösung immer oben
+  const optsHTML = `<div class="options">${shuffledOpts.map((o, i) =>
+    `<button class="option" data-val="${o}" onclick="${handler}"><span class="letter">${String.fromCharCode(65+i)}</span>${o}</button>`
+  ).join("")}</div>`;
+
+  const startAction = q.multi
+    ? `<button class="btn btn-navy" onclick="checkDiscoverMulti()">Fertig ✓</button>` : "";
+
+  app.innerHTML = topbarHTML() + progressHTML() + `
+    <div class="card discover">
+      <div class="q-head">
+        <span class="q-level-tag">🔎 ${lvl.badge} · Sprachdetektiv</span>
+      </div>
+      ${q.challenge ? `<div class="q-challenge">⭐ Knobel-Aufgabe</div>` : ""}
+      ${exHTML}
+      <div class="disc-task">${q.task}</div>
+      ${optsHTML}
+      <div class="feedback" id="feedback"></div>
+      <div class="q-actions" id="qActions">${startAction}</div>
+    </div>`;
+}
+
+// Einzelauswahl (spot, single)
+function answerDiscover(btn) {
+  if (state.answered) return;
+  state.answered = true;
+  const q = state.shuffledQuestions[state.questionIndex];
+  const val = btn.getAttribute("data-val");
+  const correct = (val === q.answer);
+  document.querySelectorAll(".option").forEach(o => {
+    o.disabled = true;
+    if (o.getAttribute("data-val") === q.answer) o.classList.add("correct");
+    if (o === btn && !correct) o.classList.add("wrong");
+  });
+  revealDiscover(q, correct);
+}
+
+// Mehrfachauswahl (spot, multi) – erst antippen, dann „Fertig“
+function toggleDiscover(btn) {
+  if (state.answered) return;
+  const v = btn.getAttribute("data-val");
+  if (discoverSel.has(v)) { discoverSel.delete(v); btn.classList.remove("picked"); }
+  else { discoverSel.add(v); btn.classList.add("picked"); }
+}
+
+function checkDiscoverMulti() {
+  if (state.answered) return;
+  if (discoverSel.size === 0) return;
+  state.answered = true;
+  const q = state.shuffledQuestions[state.questionIndex];
+  const ans = new Set(q.answer);
+  const correct = ans.size === discoverSel.size && [...ans].every(a => discoverSel.has(a));
+  document.querySelectorAll(".option").forEach(o => {
+    o.disabled = true;
+    const v = o.getAttribute("data-val");
+    o.classList.remove("picked");
+    if (ans.has(v)) o.classList.add("correct");
+    else if (discoverSel.has(v)) o.classList.add("wrong");
+  });
+  revealDiscover(q, correct);
+}
+
+// Aufdeckung („Aha!“) – Punkte/Streak nur bei richtiger Entdeckung.
+// Bei einer falschen Wahl: keine Punkte, Streak reißt ab, und es zählt als Fehler.
+function revealDiscover(q, correct) {
+  if (correct) {
+    state.score += POINTS;
+    state.streak++;
+    if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+  } else {
+    state.streak = 0;
+    state.levelMistakes[state.levelIndex]++;
+  }
+
+  const fb = document.getElementById("feedback");
+  fb.className = "feedback " + (correct ? "good" : "bad") + " show";
+  fb.innerHTML = `
+    <div class="fb-title">${correct ? "Stark entdeckt! 🔎" : "Kein Problem – schau mal:"}</div>
+    <div class="disc-reveal">💡 ${q.reveal}</div>`;
+  refreshChips();
+  showNextButton();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  ANSWER HANDLERS
+// ═══════════════════════════════════════════════════════════════
+// merkt sich, ob die aktuelle Frage schon einmal falsch beantwortet wurde
+let qWrong = false;
+
+function answerMC(btn) {
+  if (state.answered) return;
+  const q = state.shuffledQuestions[state.questionIndex];
+  const val = btn.getAttribute("data-val");
+  const correct = (val === q.answer);
+
+  if (correct) {
+    state.answered = true;
+    document.querySelectorAll(".option").forEach(o => {
+      o.disabled = true;
+      if (o.getAttribute("data-val") === q.answer) o.classList.add("correct");
+    });
+    if (qWrong) proceedAfterRedo(q);     // war vorher falsch → keine Punkte, nur weiter
+    else giveFeedback(true, q, val);     // direkt richtig → Punkte
+    return;
+  }
+
+  // FALSCH: Fehler nur EINMAL zählen, dann muss die richtige Lösung neu angeklickt werden
+  if (!qWrong) { qWrong = true; state.streak = 0; state.levelMistakes[state.levelIndex]++; refreshChips(); }
+  btn.classList.add("wrong");
+  btn.disabled = true;
+  // richtige Lösung grün markieren – sie bleibt klickbar (muss neu angeklickt werden)
+  document.querySelectorAll(".option").forEach(o => {
+    if (o.getAttribute("data-val") === q.answer) o.classList.add("correct");
+  });
+  showWrongRedo(q, "mc");
+}
+
+function checkInput() {
+  if (state.answered) return;
+  const q = state.shuffledQuestions[state.questionIndex];
+  const inp = document.getElementById("answerInput");
+  if (!inp || inp.value.trim() === "") return;
+  state.answered = true;
+  const val = norm(inp.value);
+  const correct = q.answer.map(norm).includes(val);
+  inp.disabled = true;
+  inp.classList.add(correct ? "correct" : "wrong");
+  document.querySelector(".check-btn").disabled = true;
+  giveFeedback(correct, q, inp.value.trim());
+}
+
+// ─── BUILD (Wortketten) ─────────────────────────────────────────
+let buildState = { order: [] };
+
+function buildPick(i) {
+  if (state.answered) return;
+  const pos = buildState.order.indexOf(i);
+  if (pos >= 0) buildState.order.splice(pos, 1);
+  else buildState.order.push(i);
+  drawBuild();
+}
+
+function drawBuild() {
+  const q = state.shuffledQuestions[state.questionIndex];
+  const tray = document.getElementById("buildTray");
+  if (!tray) return;
+  if (buildState.order.length === 0) {
+    tray.innerHTML = `<span class="build-ph">Tippe die Wörter unten an…</span>`;
+  } else {
+    tray.innerHTML = buildState.order.map(i =>
+      `<button class="chip placed" onclick="buildPick(${i})">${q.chips[i]}</button>`
+    ).join("");
+  }
+  document.querySelectorAll(".chip-pool .chip").forEach(ch => {
+    const i = parseInt(ch.getAttribute("data-i"), 10);
+    const used = buildState.order.includes(i);
+    ch.classList.toggle("used", used);
+    ch.disabled = used;
+  });
+}
+
+function checkBuild() {
+  if (state.answered) return;
+  const q = state.shuffledQuestions[state.questionIndex];
+  if (buildState.order.length === 0) return;
+  const userStr = buildState.order.map(i => q.chips[i]).join(" ");
+  const correct = normBuild(userStr) === normBuild(q.answer);
+
+  if (correct) {
+    state.answered = true;
+    document.querySelectorAll(".chip").forEach(c => c.disabled = true);
+    if (qWrong) proceedAfterRedo(q);   // war vorher falsch → keine Punkte, nur weiter
+    else giveFeedback(true, q, userStr);
+    return;
+  }
+
+  // FALSCH: Fehler einmal zählen, Tablett leeren → Satz muss neu gebaut werden
+  if (!qWrong) { qWrong = true; state.streak = 0; state.levelMistakes[state.levelIndex]++; refreshChips(); }
+  buildState = { order: [] };
+  drawBuild();   // setzt Tablett zurück und macht alle Chips wieder anklickbar
+  showWrongRedo(q, "build");
+}
+
+// ─── MATCH ──────────────────────────────────────────────────────
+let matchState = { picked: null, matchedCount: 0, total: 0, hadError: false };
+function matchPick(btn, side) {
+  if (state.answered) return;
+  if (btn.classList.contains("matched")) return;
+  const q = state.shuffledQuestions[state.questionIndex];
+
+  if (!matchState.picked) {
+    if (side !== "left") return;
+    matchState.picked = btn;
+    btn.classList.add("selected");
+    return;
+  }
+  if (side === "left") {
+    matchState.picked.classList.remove("selected");
+    matchState.picked = btn;
+    btn.classList.add("selected");
+    return;
+  }
+  const leftVal = matchState.picked.getAttribute("data-val");
+  const rightVal = btn.getAttribute("data-val");
+  const pair = q.pairs.find(p => p[0] === leftVal);
+  const isCorrect = pair && pair[1] === rightVal;
+
+  if (isCorrect) {
+    matchState.picked.classList.remove("selected");
+    matchState.picked.classList.add("matched");
+    btn.classList.add("matched");
+    matchState.picked = null;
+    matchState.matchedCount++;
+    if (matchState.matchedCount === matchState.total) {
+      state.answered = true;
+      giveFeedback(!matchState.hadError, q, "");
+    }
+  } else {
+    matchState.hadError = true;
+    const wrongLeft = matchState.picked;
+    const wrongRight = btn;
+    wrongLeft.classList.add("wrong");
+    wrongRight.classList.add("wrong");
+    matchState.picked.classList.remove("selected");
+    matchState.picked = null;
+    showMatchHint(leftVal, pair ? pair[1] : "?");
+    setTimeout(() => {
+      wrongLeft.classList.remove("wrong");
+      wrongRight.classList.remove("wrong");
+    }, 600);
+  }
+}
+
+function showMatchHint(left, correctRight) {
+  let hint = document.getElementById("matchHint");
+  if (!hint) {
+    hint = document.createElement("div");
+    hint.id = "matchHint";
+    hint.style.cssText = "margin-top:16px;padding:12px 16px;border-radius:10px;background:var(--red-bg);border-left:6px solid var(--red);color:var(--ink);font-size:0.98rem;animation:slideUp 0.2s;";
+    const fb = document.getElementById("feedback");
+    fb.parentNode.insertBefore(hint, fb);
+  }
+  hint.innerHTML = `Das passt noch nicht zusammen. Tipp: <b>${left}</b> gehört zu <b style="color:var(--green)">${correctRight}</b>. Versuch es weiter!`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  DIFFERENZIERTES FEEDBACK – erkennt typische Passiv-Fehler
+//  und gibt einen gezielten Tipp (statt nur „falsch“).
+// ═══════════════════════════════════════════════════════════════
+function diagnoseInput(q, userVal) {
+  if (!userVal) return "";
+  const u = norm(userVal);
+  const a = norm(q.answer[0]);
+  if (u === a) return "";
+  const beU = (u.match(/\b(am|is|are|was|were)\b/) || [])[1];
+  const beA = (a.match(/\b(am|is|are|was|were)\b/) || [])[1];
+
+  // 1) Gar keine Form von „to be“ benutzt → wahrscheinlich Aktiv geschrieben
+  if (!beU && beA) {
+    return `Im Passiv brauchst du eine Form von <b>to be</b> (am/are/is bzw. was/were) <b>+ 3. Form</b>. Hier passt <b>${beA}</b>.`;
+  }
+  // 2) Falsche Form von „to be“ gewählt
+  if (beU && beA && beU !== beA) {
+    const presA = (beA === "am" || beA === "is" || beA === "are");
+    const presU = (beU === "am" || beU === "is" || beU === "are");
+    // a) Zeit verwechselt (Gegenwart ↔ Vergangenheit)
+    if (presA && !presU) return `Hier ist <b>Gegenwart</b> gemeint → <b>${beA}</b> (am/are/is), nicht „${beU}“.`;
+    if (!presA && presU) return `Hier ist <b>Vergangenheit</b> gemeint → <b>${beA}</b> (was/were), nicht „${beU}“.`;
+    // b) Einzahl/Mehrzahl verwechselt (gleiche Zeit)
+    if (beA === "is" || beA === "was")
+      return `Achtung: Das Subjekt ist <b>Einzahl</b> (= „it“) → <b>it ${beA} …</b>, nicht „${beU}“.`;
+    if (beA === "are" || beA === "were")
+      return `Achtung: Das Subjekt ist <b>Mehrzahl</b> (= „they“) → <b>they ${beA} …</b>, nicht „${beU}“.`;
+  }
+  // 3) „to be“ stimmt, aber das Partizip (3. Form) ist falsch
+  if (beU && beA && beU === beA) {
+    return `Die Form von „to be“ stimmt schon. Achte jetzt auf die <b>3. Form</b> des Verbs (z. B. speak → spoken, build → built, give → given).`;
+  }
+  return "";
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  FEEDBACK
+// ═══════════════════════════════════════════════════════════════
+function giveFeedback(correct, q, userVal) {
+  const fb = document.getElementById("feedback");
+  const card = app.querySelector(".card");
+
+  if (correct) {
+    state.score += POINTS;
+    state.streak++;
+    if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+    const praises = ["Super! 🎉", "Richtig! 👏", "Klasse! ⭐", "Perfekt! 🙌", "Stark! 💪", "Genau! ✅"];
+    const praise = praises[Math.floor(Math.random() * praises.length)];
+    fb.className = "feedback good show";
+    fb.innerHTML = `
+      <div class="fb-title">${praise}</div>
+      <div class="fb-body">${q.why || "Gut gemacht!"}</div>`;
+    if (card) { card.style.animation = "flash-green 0.6s"; }
+    showNextButton();
+  } else {
+    state.streak = 0;
+    state.levelMistakes[state.levelIndex]++;
+    const solHTML = solutionText(q);
+    const diag = (q.type === "input" || q.type === "negate" || q.type === "error")
+      ? diagnoseInput(q, userVal) : "";
+    const diagHTML = diag ? `<div class="fb-hint">💡 ${diag}</div>` : "";
+    fb.className = "feedback bad show";
+    fb.innerHTML = `
+      <div class="fb-title">Noch nicht ganz… 🤔</div>
+      ${diagHTML}
+      <div class="fb-why">❗ <b>Warum?</b> ${q.why || "Schau dir die richtige Lösung genau an."}</div>
+      <div class="fb-correct">Richtige Lösung: <span class="sol">${solHTML}</span></div>`;
+    if (card) { card.classList.add("shake"); setTimeout(()=>card.classList.remove("shake"), 400); }
+
+    // Bei Tipp-Aufgaben: Lösung abschreiben, bevor es weitergeht
+    if (q.type === "input" || q.type === "negate" || q.type === "error") {
+      showRetypeBox(q);
+    } else {
+      showNextButton();
+    }
+  }
+
+  refreshChips();
+}
+
+// ── Falsch geklickt/gebaut → dicker Hinweis + nochmal machen ──
+function showWrongRedo(q, type) {
+  const fb = document.getElementById("feedback");
+  const card = app.querySelector(".card");
+  const solHTML = solutionText(q);
+  const instruct = type === "build"
+    ? "🔁 Schau auf die Lösung und <b>baue den Satz nochmal richtig</b> zusammen."
+    : "🔁 Klick jetzt auf die <b>richtige Lösung</b> (grün), dann geht es weiter.";
+  fb.className = "feedback bad show";
+  fb.innerHTML = `
+    <div class="fb-title">Noch nicht ganz… 🤔</div>
+    <div class="fb-why">❗ <b>Warum?</b> ${q.why || "Schau dir die richtige Lösung genau an."}</div>
+    <div class="fb-correct">Richtige Lösung: <span class="sol">${solHTML}</span></div>
+    <div class="redo-instruct">${instruct}</div>`;
+  if (card) { card.classList.add("shake"); setTimeout(()=>card.classList.remove("shake"), 400); }
+  refreshChips();
+}
+
+// ── Nach einem Fehler richtig gemacht → keine Punkte, nur weiter ──
+function proceedAfterRedo(q) {
+  const fb = document.getElementById("feedback");
+  fb.className = "feedback good show";
+  fb.innerHTML = `
+    <div class="fb-title">Genau – jetzt stimmt's! 👍</div>
+    <div class="fb-body">${q.why || "Weiter so!"}</div>`;
+  showNextButton();
+}
+
+function showNextButton() {
+  const isLast = state.questionIndex === state.shuffledQuestions.length - 1;
+  document.getElementById("qActions").innerHTML =
+    `<button class="btn btn-primary" onclick="nextQuestion()">${isLast ? "Level abschließen ➜" : "Weiter ➜"}</button>`;
+}
+
+function showRetypeBox(q) {
+  const sol = solutionText(q);
+  const acts = document.getElementById("qActions");
+  acts.innerHTML = `
+    <div class="retype-wrap">
+      <div class="retype-label">✏️ Schreibe die richtige Lösung ab, dann geht es weiter:</div>
+      <div class="retype-row">
+        <input type="text" class="text-input retype-input" id="retypeInput" placeholder="Lösung abschreiben…" autocomplete="off" onkeydown="if(event.key==='Enter')checkRetype()">
+        <button class="btn btn-navy" onclick="checkRetype()">OK</button>
+      </div>
+      <div class="retype-hint" id="retypeHint"></div>
+    </div>`;
+  setTimeout(() => { const r = document.getElementById("retypeInput"); if (r) r.focus(); }, 80);
+}
+
+function checkRetype() {
+  const q = state.shuffledQuestions[state.questionIndex];
+  const inp = document.getElementById("retypeInput");
+  const hint = document.getElementById("retypeHint");
+  if (!inp) return;
+  const typed = norm(inp.value);
+  const ok = q.answer.map(norm).includes(typed);
+  if (ok) {
+    inp.classList.add("correct");
+    inp.disabled = true;
+    hint.innerHTML = `<span style="color:var(--green);font-weight:bold;">Richtig abgeschrieben! 👍</span>`;
+    setTimeout(() => showNextButton(), 250);
+  } else {
+    inp.classList.remove("correct");
+    inp.classList.add("wrong");
+    hint.innerHTML = `<span style="color:var(--red);">Noch nicht ganz – schau auf die Lösung oben und versuch es nochmal.</span>`;
+    setTimeout(() => inp.classList.remove("wrong"), 500);
+  }
+}
+
+function solutionText(q) {
+  if (q.type === "mc") return q.answer;
+  if (q.type === "match") return q.pairs.map(p => `${p[0]} → ${p[1]}`).join(", ");
+  if (q.type === "build") {
+    let s = q.answer.replace(/\s+([.?!])/g, "$1").replace(/\s+/g, " ").trim();
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+  // input / negate / error -> erste Antwort, hübsch gemacht
+  let s = q.answer[0];
+  if (q.type === "negate" || q.type === "error") {
+    s = s.charAt(0).toUpperCase() + s.slice(1);
+    if (!/[.!?]$/.test(s)) s += ".";
+  } else if (q.type === "input") {
+    s = s.charAt(0).toUpperCase() + s.slice(1);
+  }
+  return s;
+}
+
+function refreshChips() {
+  const sc = app.querySelector(".score-chip");
+  if (sc) sc.innerHTML = `⭐ ${state.score}`;
+  const st = app.querySelector(".streak-chip");
+  if (st) {
+    st.innerHTML = `🔥 ${state.streak}`;
+    if (state.streak >= 2) st.classList.add("active"); else st.classList.remove("active");
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  RULE POPUP (während der Aufgaben)
+// ═══════════════════════════════════════════════════════════════
+function showRulePopup() {
+  const lvl = LEVELS[state.levelIndex];
+  const intro = lvl.intro;
+  if (!intro) return;
+  let inner = `<div class="rule-box" style="margin:0"><div class="rule-main">${intro.main}</div>`;
+  if (intro.formula) inner += `<div class="formula">${intro.formula}</div>`;
+  if (intro.examples && intro.examples.length) inner += `<div class="examples">${intro.examples.map(e => `<div class="ex">${e}</div>`).join("")}</div>`;
+  if (intro.table) inner += `<table class="rule-table">${intro.table.map(r => `<tr><td>${r[0]}</td><td><b>${r[1]}</b></td></tr>`).join("")}</table>`;
+  if (intro.warn) inner += `<div class="warn-box">⚠️ <span>${intro.warn}</span></div>`;
+  inner += `</div>`;
+
+  const overlay = document.createElement("div");
+  overlay.style.cssText = "position:fixed;inset:0;background:rgba(26,35,126,0.55);display:grid;place-items:center;z-index:99;padding:20px;animation:slideUp 0.2s;";
+  overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+  overlay.innerHTML = `<div class="card" style="max-width:600px;width:100%;">
+    <div class="badge" style="display:inline-flex;align-items:center;gap:8px;background:var(--red);color:#fff;font-weight:bold;padding:6px 16px;border-radius:20px;font-size:0.85rem;margin-bottom:14px;">📖 ${lvl.badge}</div>
+    ${inner}
+    <div style="text-align:right;margin-top:18px;"><button class="btn btn-navy btn-sm" onclick="this.closest('div[style]').parentElement.remove()">Schließen</button></div>
+  </div>`;
+  document.body.appendChild(overlay);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════════════════════════
+function startLevel(idx) {
+  state.levelIndex = idx;
+  state.questionIndex = 0;
+  const lvl = LEVELS[idx];
+  // Entdeckungslevel (discoverFirst) gehen direkt in die Aufgaben – kein Regel-Vorab.
+  if (lvl.intro && !lvl.discoverFirst) {
+    state.screen = "intro";
+    renderIntro();
+  } else {
+    beginQuestions();
+  }
+}
+
+function beginQuestions() {
+  const lvl = LEVELS[state.levelIndex];
+  // „first“-Aufgaben kommen GANZ zuerst – noch vor den Entdeckungs-Screens.
+  const first = lvl.questions.filter(q => q.first);
+  // Entdeckungs-Screens danach, in fester Reihenfolge (sie bauen aufeinander auf).
+  const discover = lvl.questions.filter(q => q.type === "discover" && !q.first);
+  const pinned = lvl.questions.filter(q => q.pin && q.type !== "discover" && !q.first);
+  const rest = shuffle(lvl.questions.filter(q => !q.pin && q.type !== "discover" && !q.first));
+  state.shuffledQuestions = [...first, ...discover, ...pinned, ...rest];
+  state.questionIndex = 0;
+  state.screen = "question";
+  renderQuestion();
+}
+
+function nextQuestion() {
+  if (state.questionIndex < state.shuffledQuestions.length - 1) {
+    state.questionIndex++;
+    renderQuestion();
+  } else {
+    renderLevelComplete();
+  }
+}
+
+function renderLevelComplete() {
+  const lvl = LEVELS[state.levelIndex];
+  state.screen = "levelcomplete";
+  const isLastLevel = state.levelIndex === LEVELS.length - 1;
+
+  app.innerHTML = topbarHTML() + progressHTML() + `
+    <div class="card complete">
+      <div class="star-burst">🌟</div>
+      <h2>${lvl.title} geschafft!</h2>
+      <div class="level-score">Punkte gesamt: ${state.score} ⭐</div>
+      <div class="mini-rule">
+        <h4>📌 Merke dir:</h4>
+        <p>${lvl.miniRule}</p>
+      </div>
+      <div style="margin-top:24px;">
+        ${isLastLevel
+          ? `<button class="btn btn-primary" onclick="renderFinal()">Zum Ergebnis 🏆</button>`
+          : `<button class="btn btn-primary" onclick="startLevel(${state.levelIndex+1})">Nächstes Level ➜</button>`}
+      </div>
+    </div>`;
+}
+
+function renderFinal() {
+  state.screen = "final";
+  const maxScore = state.totalQuestions * POINTS;
+  const pct = Math.round((state.score / maxScore) * 100);
+  const name = state.student ? escapeHTML(state.student.name) : "";
+  let stars = "⭐", msg = "";
+  if (pct >= 90)      { stars = "⭐⭐⭐"; msg = `Wahnsinn, ${name}! Du beherrschst das Passiv wie ein Profi! 🏆`; }
+  else if (pct >= 70) { stars = "⭐⭐"; msg = `Super gemacht, ${name}! Aktiv und Passiv sitzen schon richtig gut. 🎉`; }
+  else if (pct >= 50) { stars = "⭐"; msg = `Gut gemacht, ${name}! Übe das Passiv noch ein bisschen, dann sitzt es perfekt. 💪`; }
+  else                { stars = "✨"; msg = `Schön, dass du geübt hast, ${name}! Schau dir die Regeln nochmal an und versuch es erneut. 🌱`; }
+
+  // Individuelles Feedback pro Level (Entdeckungen zählen nicht als Fehler)
+  const tips = [];
+  let perfectLevels = 0;
+  LEVELS.forEach((lvl, i) => {
+    const m = state.levelMistakes[i] || 0;
+    if (m === 0) { perfectLevels++; }
+    else if (m >= 3) {
+      tips.push(`<div class="tip-row tip-hard"><b>${lvl.title}</b> – hier solltest du <b>nochmal üben</b> (${m} Fehler). Schau dir die Regel von Level ${lvl.id} in Ruhe an.</div>`);
+    } else {
+      tips.push(`<div class="tip-row tip-soft"><b>${lvl.title}</b> – fast perfekt, nur ${m} ${m===1?"kleiner Fehler":"kleine Fehler"}. Wiederhole es kurz, dann sitzt es!</div>`);
+    }
+  });
+
+  let tipsBlock = "";
+  if (tips.length === 0) {
+    tipsBlock = `<div class="tip-row tip-perfect">🌟 Alle Level fehlerfrei – richtig stark! Du beherrschst das Passiv schon super.</div>`;
+  } else {
+    let intro = perfectLevels > 0
+      ? `<p class="tips-intro">${perfectLevels} Level hast du fehlerfrei geschafft! 🎉 Diese Themen solltest du noch ein bisschen üben:</p>`
+      : `<p class="tips-intro">Das solltest du noch ein bisschen üben:</p>`;
+    tipsBlock = intro + tips.join("");
+  }
+
+  app.innerHTML = topbarHTML() + `
+    <div class="card final">
+      <div class="trophy">🏆</div>
+      <h2>Geschafft${name ? `, ${name}` : ""}!</h2>
+      <div class="final-score">${state.score} / ${maxScore} Punkte</div>
+      <div class="stars">${stars}</div>
+      <div class="msg">${msg}</div>
+      <div class="save-status" id="saveStatus">💾 Ergebnis wird gespeichert …</div>
+      <div class="tips-box">
+        <h4>📋 Dein persönliches Feedback</h4>
+        ${tipsBlock}
+      </div>
+      <div class="msg" style="font-size:0.95rem;">Längste Serie richtiger Antworten: 🔥 ${state.bestStreak}</div>
+      <button class="btn btn-primary" onclick="resetApp()">Nochmal spielen ↻</button>
+    </div>`;
+
+  saveCurrentResult();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  ERGEBNIS SPEICHERN (Firebase)
+// ═══════════════════════════════════════════════════════════════
+async function saveCurrentResult() {
+  const el = document.getElementById("saveStatus");
+  if (state.saved) {
+    if (el) { el.className = "save-status ok"; el.textContent = "✅ Dein Ergebnis ist gespeichert."; }
+    return;
+  }
+  if (!window.SPF || !state.student) {
+    if (el) { el.className = "save-status warn"; el.innerHTML = "⚠️ Kein Internet – dein Ergebnis konnte <b>nicht gespeichert</b> werden. Das ist nicht schlimm, sag einfach deiner Lehrkraft Bescheid."; }
+    return;
+  }
+  const maxScore = state.totalQuestions * POINTS;
+  // Fehler pro Level als Objekt { 1: x, 2: y, ... } (Schlüssel = Level-ID)
+  const fehlerProLevel = {};
+  LEVELS.forEach((l, i) => { fehlerProLevel[l.id] = state.levelMistakes[i] || 0; });
+  const data = {
+    name: state.student.name,
+    punkte: state.score,
+    maxPunkte: maxScore,
+    prozent: Math.round((state.score / maxScore) * 100),
+    fehlerProLevel: fehlerProLevel,
+    laengsteStreak: state.bestStreak,
+  };
+  try {
+    await window.SPF.saveResult(data);
+    state.saved = true;
+    if (el) { el.className = "save-status ok"; el.textContent = "✅ Dein Ergebnis wurde gespeichert. Gut gemacht!"; }
+  } catch (e) {
+    if (el) { el.className = "save-status warn"; el.innerHTML = "⚠️ Speichern hat leider nicht geklappt. Das ist nicht schlimm – sag deiner Lehrkraft Bescheid."; }
+  }
+}
+
+// kleine Hilfsfunktion: Namen sicher im HTML anzeigen
+function escapeHTML(s) {
+  return String(s).replace(/[&<>"']/g, c =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  LEHRER-LOGIN  (Button „🔑 Lehrer" oben rechts → nur Passwort)
+// ═══════════════════════════════════════════════════════════════
+function renderTeacherLogin() {
+  state.screen = "teacherlogin";
+  app.innerHTML = topbarHTML(false) + `
+    <div class="card teacher-login">
+      <div class="badge">🔑 Für Lehrkräfte</div>
+      <h2>Lehrer-Bereich</h2>
+      <p>Bitte das Passwort eingeben, um die Ergebnisse zu sehen.</p>
+      <div class="input-row">
+        <input type="password" id="pwInput" class="text-input" placeholder="Passwort…"
+               autocomplete="off" onkeydown="if(event.key==='Enter')doTeacherLogin()">
+      </div>
+      <div id="pwError" class="pw-error"></div>
+      <div style="display:flex;gap:12px;margin-top:18px;flex-wrap:wrap;">
+        <button class="btn btn-ghost btn-sm" onclick="renderStart()">← Zurück</button>
+        <button class="btn btn-navy" id="pwBtn" onclick="doTeacherLogin()">Einloggen</button>
+      </div>
+    </div>`;
+  setTimeout(() => { const p = document.getElementById("pwInput"); if (p) p.focus(); }, 80);
+}
+
+async function doTeacherLogin() {
+  const inp = document.getElementById("pwInput");
+  const err = document.getElementById("pwError");
+  const btn = document.getElementById("pwBtn");
+  if (!inp || !inp.value) return;
+  if (!window.SPF) { err.textContent = "Verbindung lädt noch – bitte kurz warten und nochmal versuchen."; return; }
+  btn.disabled = true; btn.textContent = "Prüfe…"; err.textContent = "";
+  try {
+    await window.SPF.teacherLogin(inp.value);   // Passwort serverseitig geprüft
+    renderDashboard();
+  } catch (e) {
+    console.error("Login fehlgeschlagen:", e);
+    err.textContent = "Passwort falsch oder keine Verbindung. Bitte nochmal versuchen.";
+    btn.disabled = false; btn.textContent = "Einloggen";
+    inp.classList.add("wrong"); setTimeout(() => inp.classList.remove("wrong"), 500);
+  }
+}
+
+async function doTeacherLogout() {
+  try { if (window.SPF) await window.SPF.teacherLogout(); } catch (e) {}
+  renderStart();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  LEHRER-DASHBOARD  (nur Vorname + Punkte – keine Klassen)
+// ═══════════════════════════════════════════════════════════════
+let dashCache = { rows: [], sort: "punkte" };
+
+async function renderDashboard() {
+  state.screen = "dashboard";
+  dashCache.sort = "punkte";
+  app.innerHTML = topbarHTML(false) + `
+    <div class="card dashboard">
+      <div class="dash-head">
+        <h2>📊 Ergebnisse · Das Passiv</h2>
+        <button class="btn btn-ghost btn-sm" onclick="doTeacherLogout()">Logout ⏻</button>
+      </div>
+      <div id="dashBody"><p class="dash-loading">Lade Ergebnisse…</p></div>
+    </div>`;
+  try {
+    dashCache.rows = await window.SPF.fetchResults();
+    drawDashboard();
+  } catch (e) {
+    console.error("Laden fehlgeschlagen:", e);
+    const body = document.getElementById("dashBody");
+    if (body) body.innerHTML = `<p class="pw-error">Konnte die Ergebnisse nicht laden. Bitte Internetverbindung prüfen und neu einloggen.</p>`;
+  }
+}
+
+function setDashSort(s) { dashCache.sort = s; drawDashboard(); }
+
+function drawDashboard() {
+  const body = document.getElementById("dashBody");
+  if (!body) return;
+
+  let rows = dashCache.rows.slice();
+
+  if (dashCache.sort === "punkte") rows.sort((a, b) => (b.punkte || 0) - (a.punkte || 0));
+  else rows.sort((a, b) => (a.name || "").localeCompare(b.name || "", "de"));
+
+  const count = rows.length;
+  const avg = count ? Math.round(rows.reduce((s, r) => s + (r.punkte || 0), 0) / count) : 0;
+
+  // Welches Level hatte insgesamt die meisten Fehler?
+  const levelSum = {};
+  rows.forEach(r => {
+    const f = r.fehlerProLevel || {};
+    Object.keys(f).forEach(id => { levelSum[id] = (levelSum[id] || 0) + (f[id] || 0); });
+  });
+  let worstId = null, worstVal = -1;
+  Object.keys(levelSum).forEach(id => { if (levelSum[id] > worstVal) { worstVal = levelSum[id]; worstId = id; } });
+  const worstLevel = (worstId && worstVal > 0)
+    ? (LEVELS.find(l => String(l.id) === String(worstId)) || {}).title || ("Level " + worstId)
+    : "–";
+
+  let tableHTML;
+  if (count === 0) {
+    tableHTML = `<p class="dash-empty">Noch keine Ergebnisse vorhanden.</p>`;
+  } else {
+    const rowsHTML = rows.map(r => {
+      const f = r.fehlerProLevel || {};
+      const fehlerMini = LEVELS.map(l => `L${l.id}:<b>${f[l.id] != null ? f[l.id] : "–"}</b>`).join(" ");
+      return `<tr>
+        <td class="td-name">${escapeHTML(r.name || "?")}</td>
+        <td class="td-pts">${r.punkte != null ? r.punkte : "?"}</td>
+        <td>${r.prozent != null ? r.prozent + " %" : "?"}</td>
+        <td class="dash-mini">${fehlerMini}</td>
+        <td>${formatDate(r.zeitstempel)}</td>
+      </tr>`;
+    }).join("");
+    tableHTML = `
+      <div class="sort-row">
+        <span>Sortieren:</span>
+        <button class="sort-btn ${dashCache.sort === "punkte" ? "active" : ""}" onclick="setDashSort('punkte')">Punkte ↓</button>
+        <button class="sort-btn ${dashCache.sort === "name" ? "active" : ""}" onclick="setDashSort('name')">Name A–Z</button>
+      </div>
+      <div class="dash-table-wrap">
+        <table class="dash-table">
+          <thead><tr>
+            <th>Name</th>
+            <th>Punkte</th>
+            <th>Prozent</th>
+            <th>Fehler pro Level</th>
+            <th>Datum</th>
+          </tr></thead>
+          <tbody>${rowsHTML}</tbody>
+        </table>
+      </div>`;
+  }
+
+  body.innerHTML = `
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-num">${avg}</div><div class="stat-label">Ø Punkte</div></div>
+      <div class="stat-card"><div class="stat-num">${count}</div><div class="stat-label">Teilnehmer</div></div>
+      <div class="stat-card"><div class="stat-num small">${escapeHTML(worstLevel)}</div><div class="stat-label">meiste Fehler → hier wiederholen</div></div>
+    </div>
+    ${tableHTML}`;
+}
+
+// Firestore-Zeitstempel hübsch als Datum anzeigen
+function formatDate(ts) {
+  try {
+    let d = null;
+    if (ts && typeof ts.toDate === "function") d = ts.toDate();
+    else if (ts && ts.seconds) d = new Date(ts.seconds * 1000);
+    else if (ts) d = new Date(ts);
+    if (!d || isNaN(d.getTime())) return "–";
+    return d.toLocaleDateString("de-DE") + " " + d.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" });
+  } catch (e) { return "–"; }
+}
+
+function resetApp() {
+  state = {
+    screen: "start", levelIndex: 0, questionIndex: 0, score: 0, streak: 0, bestStreak: 0,
+    levelMistakes: [], shuffledQuestions: [], answered: false, totalQuestions: 0,
+    student: null, saved: false,
+  };
+  LEVELS.forEach(l => { state.totalQuestions += l.questions.length; state.levelMistakes.push(0); });
+  renderStart();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════════
+renderStart();
+
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     FIREBASE-ANBINDUNG  (modernes Firebase v9+ "modular" SDK per CDN)
+     ───────────────────────────────────────────────────────────────
+     Stellt der App vier Funktionen unter window.SPF bereit:
+       • SPF.saveResult(data)   → Schüler-Ergebnis speichern
+       • SPF.teacherLogin(pw)   → Lehrer-Login (Passwort serverseitig geprüft)
+       • SPF.teacherLogout()    → Lehrer ausloggen
+       • SPF.fetchResults()     → alle Ergebnisse lesen (nur eingeloggt)
+
+     WICHTIG: Diese App nutzt DASSELBE Firebase-Projekt wie die anderen
+     Apps, speichert ihre Ergebnisse aber in einer EIGENEN Sammlung
+     namens „results_passiv" – so vermischen sich die Apps nicht.
+     ═══════════════════════════════════════════════════════════════ -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs, serverTimestamp }
+    from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+  import { getAuth, signInWithEmailAndPassword, signOut }
+    from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+  // ╔═══════════════════════════════════════════════════════════════╗
+  // ║  ❶ FIREBASE-DATEN – identisch zu den anderen Apps (gleiches Projekt) ║
+  // ╚═══════════════════════════════════════════════════════════════╝
+  const firebaseConfig = {
+    apiKey:            "AIzaSyCx3KTM3B-h9HswjbARohubnHLfwWUJAPE",
+    authDomain:        "lernapp-simple-past.firebaseapp.com",
+    projectId:         "lernapp-simple-past",
+    storageBucket:     "lernapp-simple-past.firebasestorage.app",
+    messagingSenderId: "517097796169",
+    appId:             "1:517097796169:web:11e50b2d871ffa144c4598",
+  };
+
+  // ❷ E-Mail des Lehrer-Kontos (Passwort tippt die Lehrkraft ein, Firebase prüft es)
+  const TEACHER_EMAIL = "lehrer@simple-past.app";
+
+  // ❹ Eigene Sammlung für diese „Passiv"-App (getrennt von den anderen Apps)
+  const COLLECTION = "results_passiv";
+
+  let db = null, auth = null;
+  try {
+    const fbApp = initializeApp(firebaseConfig);
+    db   = getFirestore(fbApp);
+    auth = getAuth(fbApp);
+  } catch (e) {
+    console.error("Firebase-Initialisierung fehlgeschlagen – firebaseConfig prüfen:", e);
+  }
+
+  window.SPF = {
+    async saveResult(data) {
+      if (!db) throw new Error("Firebase nicht bereit");
+      data.zeitstempel = serverTimestamp();
+      return addDoc(collection(db, COLLECTION), data);
+    },
+    async teacherLogin(password) {
+      if (!auth) throw new Error("Firebase nicht bereit");
+      await signInWithEmailAndPassword(auth, TEACHER_EMAIL, password);
+      return true;
+    },
+    async teacherLogout() {
+      if (auth) await signOut(auth);
+    },
+    async fetchResults() {
+      if (!db) throw new Error("Firebase nicht bereit");
+      const snap = await getDocs(collection(db, COLLECTION));
+      return snap.docs.map(d => d.data());
+    },
+  };
+
+  /* ╔═══════════════════════════════════════════════════════════════╗
+     ║  ❸ FIRESTORE SECURITY RULES (in der Firebase-Konsole eintragen)║
+     ║  Firestore Database → Reiter „Regeln" → einfügen → Veröffentlichen
+     ║                                                               ║
+     ║  Diese Regeln decken ALLE Apps ab                            ║
+     ║  (results + results_fragen + results_passiv):                ║
+     ║                                                               ║
+     ║  rules_version = '2';                                          ║
+     ║  service cloud.firestore {                                     ║
+     ║    match /databases/{database}/documents {                    ║
+     ║      match /results/{doc} {                                   ║
+     ║        allow create: if true;                                 ║
+     ║        allow read:   if request.auth != null;                 ║
+     ║        allow update, delete: if false;                        ║
+     ║      }                                                         ║
+     ║      match /results_fragen/{doc} {                            ║
+     ║        allow create: if true;                                 ║
+     ║        allow read:   if request.auth != null;                 ║
+     ║        allow update, delete: if false;                        ║
+     ║      }                                                         ║
+     ║      match /results_passiv/{doc} {                            ║
+     ║        allow create: if true;                                 ║
+     ║        allow read:   if request.auth != null;                 ║
+     ║        allow update, delete: if false;                        ║
+     ║      }                                                         ║
+     ║    }                                                           ║
+     ║  }                                                             ║
+     ╚═══════════════════════════════════════════════════════════════╝ */
+</script>
+</body>
+</html>
